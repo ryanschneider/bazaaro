@@ -54,7 +54,7 @@ impl Plugin for FightingPlugin {
                 .after(SystemSets::OnEnter),
         );
         app.add_systems(
-            Update,
+            FixedUpdate,
             check_winner
                 .run_if(in_state(GameState::Fight))
                 .after(SystemSets::Ticking),
@@ -71,6 +71,7 @@ enum SystemSets {
 #[derive(Resource)]
 pub struct Battle {
     pub start: f64,
+    pub over: bool,
     pub hero: Entity,
     pub villain: Entity,
 }
@@ -97,7 +98,7 @@ pub fn setup_fight(
     q_hero: Query<Entity, With<Hero>>,
     q_villain: Query<Entity, With<Villain>>,
 ) {
-    time.set_relative_speed(100.0);
+    time.set_relative_speed(100000.0);
 
     let hero = q_hero.single();
     commands
@@ -111,6 +112,7 @@ pub fn setup_fight(
 
     commands.insert_resource(Battle {
         start: time.elapsed_secs_f64(),
+        over: false,
         hero: hero,
         villain: villain,
     });
@@ -186,6 +188,16 @@ fn on_attack(
     mut q_defender: Query<(&mut Health, &mut Shielded, Option<&Name>), With<Character>>,
     mut q_weapon: Query<(&Weapon, Option<&Name>)>,
 ) {
+    // FIXME: its taking a couple frames for the state transition
+    // from GameState::Fighting to ::Results to happen, I'll figure out
+    // how to flush the state transition but in the meantime
+    // we'll just short-circuit here.
+    //
+    // This _MUST_ be fixed before adding any more combat systems.
+    if battle.over {
+        return;
+    }
+
     let AttackEvent {
         attacker,
         defender,
@@ -220,9 +232,15 @@ fn on_attack(
 fn check_winner(
     _: Query<(Entity, &Health), Changed<Health>>,
     query: Query<&Health>,
-    battle: Res<Battle>,
+    mut battle: ResMut<Battle>,
+    time: Res<Time>,
+    time_real: Res<Time<Real>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
+    if battle.over {
+        return;
+    }
+
     let Ok(hero) = query.get(battle.hero) else {
         return;
     };
@@ -233,17 +251,23 @@ fn check_winner(
     };
     let villain_alive = v.current > 0;
 
+    let duration = battle.elapsed(time.elapsed_secs_f64());
+    let wall_time = time_real.elapsed();
+
     match (hero_alive, villain_alive) {
         (true, false) => {
-            eprintln!("we won!");
+            eprintln!("We won in {:?}!  Simulated in {:?}", duration, wall_time);
+            battle.over = true;
             next_state.set(GameState::Results);
         }
         (false, true) => {
-            eprintln!("we lost!");
+            eprintln!("We lost in {:?}!  Simulated in {:?}", duration, wall_time);
+            battle.over = true;
             next_state.set(GameState::Results);
         }
         (false, false) => {
-            eprintln!("we tied!");
+            eprintln!("We tied in {:?}!  Simulated in {:?}", duration, wall_time);
+            battle.over = true;
             next_state.set(GameState::Results);
         }
         (true, true) => {}
