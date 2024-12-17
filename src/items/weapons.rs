@@ -1,4 +1,5 @@
-use crate::fighting::{AttackEvent, Battle};
+use crate::effects::attack::AttackEvent;
+use crate::fighting::Battle;
 use crate::items::usable::UseEvent;
 use bevy::prelude::*;
 

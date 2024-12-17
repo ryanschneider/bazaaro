@@ -14,6 +14,7 @@ fn main() {
             DefaultPlugins.set(ScheduleRunnerPlugin::default()),
             loading::LoadingPlugin {},
             fighting::FightingPlugin {},
+            effects::EffectsPlugin {},
             items::ItemsPlugin {},
         ))
         .insert_resource(Time::<Virtual>::from_max_delta(Duration::from_millis(100)))

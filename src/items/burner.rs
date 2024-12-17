@@ -1,5 +1,5 @@
-use crate::effects::burn::Burn;
-use crate::fighting::{Battle, BurnEvent};
+use crate::effects::burn::{Burn, BurnEvent};
+use crate::fighting::Battle;
 use crate::items::usable::UseEvent;
 use bevy::prelude::*;
 
