@@ -15,27 +15,54 @@ In short, when the user clicks on an opponent, a fight is started on the server,
 the results are streamed to the client in JSON/protobuf/bevy-remote-proto(?)/whatever,
 since the server runs way faster than realtime the combat should be "done" in milliseconds.
 
-Currently combat is basic, just weapons w/ cooldown have been implemented:
+Currently combat is basic, just weapons/burn w/ cooldown have been implemented:
 
 ```
 ready to fight!
-3.015625s: Our Hero attacked Evil Henchman with Hand Axe for 5!
-3.015625s: Evil Henchman attacked Our Hero with Hand Axe for 5!
-5.015625s: Our Hero attacked Evil Henchman with Great Sword for 30!
-6.015625s: Our Hero attacked Evil Henchman with Hand Axe for 5!
-6.015625s: Evil Henchman attacked Our Hero with Hand Axe for 5!
-9.015625s: Our Hero attacked Evil Henchman with Hand Axe for 5!
-9.015625s: Evil Henchman attacked Our Hero with Hand Axe for 5!
-10.015625s: Our Hero attacked Evil Henchman with Great Sword for 30!
-12.015625s: Our Hero attacked Evil Henchman with Hand Axe for 5!
-12.015625s: Evil Henchman attacked Our Hero with Hand Axe for 5!
-15.015625s: Our Hero attacked Evil Henchman with Hand Axe for 5!
-15.015625s: Our Hero attacked Evil Henchman with Great Sword for 30!
-15.015625s: Evil Henchman attacked Our Hero with Hand Axe for 5!
-18.015625s: Our Hero attacked Evil Henchman with Hand Axe for 5!
-18.015625s: Evil Henchman attacked Our Hero with Hand Axe for 5!
-20.015625s: Our Hero attacked Evil Henchman with Great Sword for 30!
-We won in 20.015625s!  Simulated in 246.042µs
+15.625ms: Hero: 250 Villain: 150
+3.015625s: "Our Hero" attacked "Evil Henchman" with Hand Axe for 5!
+3.015625s: "Evil Henchman" attacked "Our Hero" with Hand Axe for 5!
+3.015625s: Hero: 245 Villain: 145
+5.015625s: "Our Hero" attacked "Evil Henchman" with Burning Great Sword for 10!
+5.015625s: "Our Hero" burned "Evil Henchman" with Burning Great Sword for 10!
+5.015625s: Hero: 245 Villain: 135
+6s: Burning "Evil Henchman" for 10
+6s: Hero: 245 Villain: 125
+6.015625s: "Our Hero" attacked "Evil Henchman" with Hand Axe for 5!
+6.015625s: "Evil Henchman" attacked "Our Hero" with Hand Axe for 5!
+6.015625s: Hero: 240 Villain: 120
+7s: Burning "Evil Henchman" for 9
+7s: Hero: 240 Villain: 111
+8s: Burning "Evil Henchman" for 8
+8s: Hero: 240 Villain: 103
+9s: Burning "Evil Henchman" for 7
+9s: Hero: 240 Villain: 96
+9.015625s: "Our Hero" attacked "Evil Henchman" with Hand Axe for 5!
+9.015625s: "Evil Henchman" attacked "Our Hero" with Hand Axe for 5!
+9.015625s: Hero: 235 Villain: 91
+10s: Burning "Evil Henchman" for 6
+10s: Hero: 235 Villain: 85
+10.015625s: "Our Hero" attacked "Evil Henchman" with Burning Great Sword for 10!
+10.015625s: "Our Hero" burned "Evil Henchman" with Burning Great Sword for 10!
+10.015625s: Hero: 235 Villain: 75
+11s: Burning "Evil Henchman" for 15
+11s: Hero: 235 Villain: 60
+12s: Burning "Evil Henchman" for 14
+12s: Hero: 235 Villain: 46
+12.015625s: "Our Hero" attacked "Evil Henchman" with Hand Axe for 5!
+12.015625s: "Evil Henchman" attacked "Our Hero" with Hand Axe for 5!
+12.015625s: Hero: 230 Villain: 41
+13s: Burning "Evil Henchman" for 13
+13s: Hero: 230 Villain: 28
+14s: Burning "Evil Henchman" for 12
+14s: Hero: 230 Villain: 16
+15s: Burning "Evil Henchman" for 11
+15s: Hero: 230 Villain: 5
+15.015625s: "Our Hero" attacked "Evil Henchman" with Hand Axe for 5!
+15.015625s: "Evil Henchman" attacked "Our Hero" with Hand Axe for 5!
+15.015625s: "Our Hero" attacked "Evil Henchman" with Burning Great Sword for 10!
+15.015625s: "Our Hero" burned "Evil Henchman" with Burning Great Sword for 10!
+We won in 15.015625s!  Simulated in 281.042µs
 ```
 
 Status:
