@@ -1,4 +1,5 @@
 mod characters;
+mod effects;
 mod fighting;
 mod items;
 mod loading;

@@ -25,6 +25,10 @@ impl Health {
             max: val,
         }
     }
+
+    pub fn reset(&mut self) {
+        self.current = self.max;
+    }
 }
 
 #[derive(Default, Component)]

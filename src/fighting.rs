@@ -1,5 +1,6 @@
 use crate::characters::*;
-use crate::items::Weapon;
+use crate::effects::burn::Burn;
+use crate::items::weapons::Weapon;
 use crate::GameState;
 use bevy::prelude::*;
 use std::time::Duration;
@@ -20,13 +21,13 @@ impl Shielded {
 }
 
 #[derive(Default, Component)]
-pub struct Regeneration(u32);
+pub struct Regeneration;
 
 #[derive(Default, Component)]
 pub struct Burned(u32);
 
 #[derive(Default, Component)]
-pub struct Poisoned(u32);
+pub struct Poisoned;
 
 #[derive(Default, Bundle)]
 pub struct DefaultEffects {
@@ -46,6 +47,7 @@ impl Plugin for FightingPlugin {
         );
         app.add_observer(apply_burn);
         app.add_observer(on_attack);
+        app.add_observer(on_burned);
         app.add_systems(
             FixedUpdate,
             (tick,)
@@ -58,6 +60,14 @@ impl Plugin for FightingPlugin {
             check_winner
                 .run_if(in_state(GameState::Fight))
                 .after(SystemSets::Ticking),
+        );
+        // lets make sure we detect and transition away from the ::Fight
+        // state immediately
+        app.add_systems(
+            FixedUpdate,
+            battle_over
+                .run_if(in_state(GameState::Fight))
+                .after(check_winner),
         );
     }
 }
@@ -95,26 +105,28 @@ impl Battle {
 pub fn setup_fight(
     mut commands: Commands,
     mut time: ResMut<Time<Virtual>>,
-    q_hero: Query<Entity, With<Hero>>,
-    q_villain: Query<Entity, With<Villain>>,
+    mut q_hero: Query<(Entity, &mut Health), (With<Hero>, Without<Villain>)>,
+    mut q_villain: Query<(Entity, &mut Health), (With<Villain>, Without<Hero>)>,
 ) {
     time.set_relative_speed(100000.0);
 
-    let hero = q_hero.single();
+    let (hero, mut hero_health) = q_hero.single_mut();
     commands
         .entity(hero)
         .insert_if_new(DefaultEffects::default());
+    hero_health.reset();
 
-    let villain = q_villain.single();
+    let (villain, mut villain_health) = q_villain.single_mut();
     commands
         .entity(villain)
         .insert_if_new(DefaultEffects::default());
+    villain_health.reset();
 
     commands.insert_resource(Battle {
         start: time.elapsed_secs_f64(),
         over: false,
-        hero: hero,
-        villain: villain,
+        hero,
+        villain,
     });
     eprintln!("ready to fight!");
 }
@@ -151,15 +163,24 @@ pub fn tick(mut tickers: ResMut<FightingTickers>, time: Res<Time>, mut commands:
 
 pub fn apply_burn(
     _: Trigger<MajorTickEvent>,
-    mut q_burn: Query<(&mut Burned, &mut Health, &mut Shielded)>,
+    time: Res<Time>,
+    battle: Res<Battle>,
+    mut q_burn: Query<(&Name, &mut Burned, &mut Health, &mut Shielded)>,
 ) {
     q_burn
         .iter_mut()
-        .for_each(|(mut burned, mut health, mut shielded)| {
+        .for_each(|(name, mut burned, mut health, mut shielded)| {
             let burn_amt = burned.0;
             if burn_amt == 0 {
                 return;
             }
+
+            eprintln!(
+                "{:?}: Burning {:?} for {}",
+                battle.elapsed(time.elapsed_secs_f64()),
+                name,
+                burn_amt,
+            );
             // burn shields
             let burn_amt = shielded.absorb(burn_amt);
             if burn_amt == 0 {
@@ -175,9 +196,19 @@ pub fn apply_burn(
 
 #[derive(Event)]
 pub struct AttackEvent {
-    pub attacker: Entity,
-    pub defender: Entity,
-    pub attacked_with: Entity,
+    attacker: Entity,
+    defender: Entity,
+    with: Entity,
+}
+
+impl AttackEvent {
+    pub fn new(attacker: Entity, defender: Entity, with: Entity) -> Self {
+        Self {
+            attacker,
+            defender,
+            with,
+        }
+    }
 }
 
 fn on_attack(
@@ -186,32 +217,22 @@ fn on_attack(
     battle: Res<Battle>,
     q_attacker: Query<&Name>,
     mut q_defender: Query<(&mut Health, &mut Shielded, Option<&Name>), With<Character>>,
-    mut q_weapon: Query<(&Weapon, Option<&Name>)>,
+    q_weapon: Query<(&Weapon, Option<&Name>)>,
 ) {
-    // FIXME: its taking a couple frames for the state transition
-    // from GameState::Fighting to ::Results to happen, I'll figure out
-    // how to flush the state transition but in the meantime
-    // we'll just short-circuit here.
-    //
-    // This _MUST_ be fixed before adding any more combat systems.
-    if battle.over {
-        return;
-    }
-
     let AttackEvent {
         attacker,
         defender,
-        attacked_with,
+        with,
     } = trigger.event();
     let Ok((mut health, mut shielded, defender_name)) = q_defender.get_mut(*defender) else {
         return;
     };
     let defender_name: &str = defender_name
-        .and_then(|name| Some(name.as_str()))
+        .map(|name| name.as_str())
         .unwrap_or("defender");
     let attacker_name: &str = q_attacker.get(*attacker).map_or("attacker", |n| n.as_str());
 
-    let Ok((weapon, weapon_name)) = q_weapon.get(*attacked_with) else {
+    let Ok((weapon, weapon_name)) = q_weapon.get(*with) else {
         return;
     };
     let damage = weapon.damage;
@@ -220,7 +241,7 @@ fn on_attack(
     let weapon_name: &str = weapon_name.map_or("some weapon", |n| n.as_str());
 
     eprintln!(
-        "{:?}: {} attacked {} with {} for {}!",
+        "{:?}: {:?} attacked {:?} with {} for {}!",
         battle.elapsed(time.elapsed_secs_f64()),
         attacker_name,
         defender_name,
@@ -229,15 +250,70 @@ fn on_attack(
     );
 }
 
+fn on_burned(
+    trigger: Trigger<BurnEvent>,
+    time: Res<Time>,
+    battle: Res<Battle>,
+    q_attacker: Query<&Name>,
+    mut q_defender: Query<(&mut Burned, Option<&Name>), With<Character>>,
+    q_burner: Query<(&Burn, Option<&Name>)>,
+) {
+    let BurnEvent {
+        attacker,
+        defender,
+        with,
+    } = trigger.event();
+    let Ok((mut burned, defender_name)) = q_defender.get_mut(*defender) else {
+        return;
+    };
+    let defender_name: &str = defender_name
+        .map(|name| name.as_str())
+        .unwrap_or("defender");
+    let attacker_name: &str = q_attacker.get(*attacker).map_or("attacker", |n| n.as_str());
+
+    let Ok((source, source_name)) = q_burner.get(*with) else {
+        return;
+    };
+    let burn = source.amount;
+    burned.0 += burn;
+    let source_name: &str = source_name.map_or("some burner", |n| n.as_str());
+
+    eprintln!(
+        "{:?}: {:?} burned {:?} with {} for {}!",
+        battle.elapsed(time.elapsed_secs_f64()),
+        attacker_name,
+        defender_name,
+        source_name,
+        burn
+    );
+}
+
+#[derive(Event)]
+pub struct BurnEvent {
+    attacker: Entity,
+    defender: Entity,
+    with: Entity,
+}
+
+impl BurnEvent {
+    pub fn new(attacker: Entity, defender: Entity, with: Entity) -> Self {
+        Self {
+            attacker,
+            defender,
+            with,
+        }
+    }
+}
+
 fn check_winner(
-    _: Query<(Entity, &Health), Changed<Health>>,
+    changed: Query<(Entity, &Health), Changed<Health>>,
     query: Query<&Health>,
     mut battle: ResMut<Battle>,
     time: Res<Time>,
     time_real: Res<Time<Real>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    if battle.over {
+    if changed.is_empty() {
         return;
     }
 
@@ -246,10 +322,10 @@ fn check_winner(
     };
     let hero_alive = hero.current > 0;
 
-    let Ok(v) = query.get(battle.villain) else {
+    let Ok(villain) = query.get(battle.villain) else {
         return;
     };
-    let villain_alive = v.current > 0;
+    let villain_alive = villain.current > 0;
 
     let duration = battle.elapsed(time.elapsed_secs_f64());
     let wall_time = time_real.elapsed();
@@ -270,6 +346,18 @@ fn check_winner(
             battle.over = true;
             next_state.set(GameState::Results);
         }
-        (true, true) => {}
+        (true, true) => {
+            eprintln!(
+                "{:?}: Hero: {} Villain: {}",
+                duration, hero.current, villain.current,
+            );
+        }
     };
+}
+
+fn battle_over(world: &mut World) {
+    if !world.get_resource_mut::<Battle>().unwrap().over {
+        return;
+    }
+    let _ = world.try_run_schedule(StateTransition);
 }

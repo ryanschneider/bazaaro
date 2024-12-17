@@ -44,7 +44,6 @@ Status:
 - Haste and slow will require reworking the cooldown tics (currently tracked in 100ms "tick" timesteps).
 - TODOs:
   - Finish main loop (goto `GameState::Results`)
-  - Figure out why `::Results` transition takes so long.
   - Exit w/ results.
   - Timing off by a frame? (probably system ordering issues)
   - Sandstorm

@@ -1,6 +1,7 @@
 use super::*;
+use crate::effects::burn::Burn;
 use characters::*;
-use items::*;
+use items::armory::*;
 
 pub struct LoadingPlugin;
 impl Plugin for LoadingPlugin {
@@ -12,18 +13,20 @@ impl Plugin for LoadingPlugin {
 fn load_characters(mut commands: Commands, mut next_state: ResMut<NextState<GameState>>) {
     // Spawn our Hero
     let _hero = {
+        let burning_great_sword = {
+            let mut e = commands.spawn(GenericWeapon::new(
+                "Burning Great Sword",
+                10,
+                Duration::from_secs(5),
+            ));
+            e.insert_if_new(Burn::new(10));
+            e.id()
+        };
+
         let mut items = Items::default();
         items.slots.extend::<Vec<Option<Entity>>>(vec![
             Some(commands.spawn(HandAxe::default()).id()),
-            Some(
-                commands
-                    .spawn(GenericWeapon::new(
-                        "Great Sword",
-                        30,
-                        Duration::from_secs(5),
-                    ))
-                    .id(),
-            ),
+            Some(burning_great_sword),
         ]);
 
         let hero = commands
