@@ -42,3 +42,20 @@ impl GenericWeapon {
         }
     }
 }
+
+#[derive(Bundle)]
+pub struct GenericUsable {
+    pub name: Name,
+    pub item: Item,
+    pub usable: Usable,
+}
+
+impl GenericUsable {
+    pub fn new(name: &str, cooldown: Duration) -> Self {
+        Self {
+            name: name.into(),
+            item: Item,
+            usable: Usable::with_cooldown(cooldown),
+        }
+    }
+}

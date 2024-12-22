@@ -1,5 +1,4 @@
 use crate::characters::*;
-use crate::effects::DefaultEffects;
 use crate::GameState;
 use bevy::prelude::*;
 use std::time::Duration;
@@ -66,6 +65,7 @@ impl Battle {
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub fn setup_fight(
     mut commands: Commands,
     mut time: ResMut<Time<Virtual>>,
@@ -75,15 +75,9 @@ pub fn setup_fight(
     time.set_relative_speed(100000.0);
 
     let (hero, mut hero_health) = q_hero.single_mut();
-    commands
-        .entity(hero)
-        .insert_if_new(DefaultEffects::default());
     hero_health.reset();
 
     let (villain, mut villain_health) = q_villain.single_mut();
-    commands
-        .entity(villain)
-        .insert_if_new(DefaultEffects::default());
     villain_health.reset();
 
     commands.insert_resource(Battle {

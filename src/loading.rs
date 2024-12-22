@@ -1,5 +1,6 @@
 use super::*;
 use crate::effects::burn::Burn;
+use crate::effects::shield::Shield;
 use characters::*;
 use items::armory::*;
 
@@ -19,12 +20,12 @@ fn load_characters(mut commands: Commands, mut next_state: ResMut<NextState<Game
                 10,
                 Duration::from_secs(5),
             ));
-            e.insert_if_new(Burn::new(10));
+            e.insert_if_new(Burn::new(15));
             e.id()
         };
 
         let mut items = Items::default();
-        items.slots.extend::<Vec<Option<Entity>>>(vec![
+        items.slots.extend(vec![
             Some(commands.spawn(HandAxe::default()).id()),
             Some(burning_great_sword),
         ]);
@@ -43,10 +44,19 @@ fn load_characters(mut commands: Commands, mut next_state: ResMut<NextState<Game
 
     // And our opponent!
     let _villain = {
+        let shield_talisman = {
+            let mut e = commands.spawn(GenericUsable::new(
+                "Shielded Talisman",
+                Duration::from_secs_f32(5.5),
+            ));
+            e.insert_if_new(Shield::new(10));
+            e.id()
+        };
         let mut items = Items::default();
-        items
-            .slots
-            .push(Some(commands.spawn(HandAxe::default()).id()));
+        items.slots.extend(vec![
+            Some(commands.spawn(HandAxe::default()).id()),
+            Some(shield_talisman),
+        ]);
         let villain = commands
             .spawn((
                 Name::new("Evil Henchman"),

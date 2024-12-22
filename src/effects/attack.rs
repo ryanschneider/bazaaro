@@ -21,20 +21,21 @@ impl AttackEvent {
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub fn on_attack(
     trigger: Trigger<AttackEvent>,
     time: Res<Time>,
     battle: Res<Battle>,
     q_attacker: Query<&Name>,
-    mut q_defender: Query<(&mut Health, &mut Shielded, Option<&Name>), With<Character>>,
-    q_weapon: Query<(&Weapon, Option<&Name>)>,
+    mut q_defender: Query<(&mut Health, Option<&mut Shielded>, Option<&Name>), With<Character>>,
+    q_weapon: Query<(&Weapon, &Name)>,
 ) {
     let AttackEvent {
         attacker,
         defender,
         with,
     } = trigger.event();
-    let Ok((mut health, mut shielded, defender_name)) = q_defender.get_mut(*defender) else {
+    let Ok((mut health, maybe_shielded, defender_name)) = q_defender.get_mut(*defender) else {
         return;
     };
     let defender_name: &str = defender_name
@@ -46,12 +47,25 @@ pub fn on_attack(
         return;
     };
     let damage = weapon.damage;
-    let damage = shielded.absorb(damage);
-    health.current = health.current.saturating_sub(damage);
-    let weapon_name: &str = weapon_name.map_or("some weapon", |n| n.as_str());
+    let damage = match maybe_shielded {
+        None => damage,
+        Some(mut shielded) => {
+            eprintln!(
+                "{:?}: {:?} shield blocked {}!",
+                battle.elapsed(time.elapsed_secs_f64()),
+                defender_name,
+                damage.min(shielded.0)
+            );
+            shielded.absorb(damage)
+        }
+    };
+    if damage == 0 {
+        return;
+    }
 
+    health.current = health.current.saturating_sub(damage);
     eprintln!(
-        "{:?}: {:?} attacked {:?} with {} for {}!",
+        "{:?}: {:?} damaged {:?} with {} for {}!",
         battle.elapsed(time.elapsed_secs_f64()),
         attacker_name,
         defender_name,

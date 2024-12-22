@@ -1,7 +1,8 @@
 use crate::characters::{Character, Health};
 use crate::effects::shield::Shielded;
-use crate::fighting::{Battle, MajorTickEvent};
+use crate::fighting::Battle;
 use bevy::prelude::*;
+use std::time::Duration;
 
 #[derive(Component)]
 pub struct Burn(u32);
@@ -29,20 +30,44 @@ impl BurnEvent {
     }
 }
 
-#[derive(Default, Component)]
-pub struct Burning(u32);
+#[derive(Component)]
+pub struct Burning {
+    amount: u32,
+    timer: Timer,
+}
+
+impl Burning {
+    pub fn new(amount: u32) -> Self {
+        Self {
+            amount,
+            timer: Timer::new(Duration::from_millis(500), TimerMode::Repeating),
+        }
+    }
+}
 
 pub fn tick_burning(
-    _: Trigger<MajorTickEvent>,
     time: Res<Time>,
     battle: Res<Battle>,
-    mut q_burn: Query<(&Name, &mut Burning, &mut Health, &mut Shielded)>,
+    mut q_burn: Query<(
+        Entity,
+        &Name,
+        &mut Burning,
+        &mut Health,
+        Option<&mut Shielded>,
+    )>,
+    mut commands: Commands,
 ) {
     q_burn
         .iter_mut()
-        .for_each(|(name, mut burning, mut health, mut shielded)| {
-            let burn_amt = burning.0;
+        .for_each(|(entity, name, mut burning, mut health, shielded)| {
+            burning.timer.tick(time.delta());
+            if !burning.timer.just_finished() {
+                return;
+            }
+
+            let burn_amt = burning.amount;
             if burn_amt == 0 {
+                commands.entity(entity).remove::<Burning>();
                 return;
             }
 
@@ -52,16 +77,36 @@ pub fn tick_burning(
                 name,
                 burn_amt,
             );
-            // burn shields
-            let burn_amt = shielded.absorb(burn_amt);
-            if burn_amt == 0 {
-                return;
-            }
-            // then health
-            health.current = health.current.saturating_sub(burn_amt);
 
-            // and remove one burn
-            burning.0 = burning.0.saturating_sub(1);
+            // if they have shields, burn that
+            // not that it appears that any shield will block all burn
+            // so this does not fall through.
+            match shielded {
+                Some(mut shielded) if shielded.0 > 0 => {
+                    let original_shielded = shielded.0;
+                    shielded.0 = shielded.0.saturating_sub(burn_amt / 2);
+                    eprintln!(
+                        "{:?}: {} shield blocked {} burn, {} shield remains!",
+                        battle.elapsed(time.elapsed_secs_f64()),
+                        original_shielded,
+                        burn_amt,
+                        shielded.0,
+                    );
+                    if shielded.0 == 0 {
+                        commands.entity(entity).remove::<Shielded>();
+                    }
+                }
+                _ => {
+                    // otherwise burn health
+                    health.current = health.current.saturating_sub(burn_amt);
+                }
+            };
+
+            // and decrement one burn
+            burning.amount = burning.amount.saturating_sub(1);
+            if burning.amount == 0 {
+                commands.entity(entity).remove::<Burning>();
+            }
         });
 }
 
@@ -70,19 +115,28 @@ pub fn on_burned(
     time: Res<Time>,
     battle: Res<Battle>,
     q_attacker: Query<&Name>,
-    mut q_defender: Query<(&mut Burning, &Name), With<Character>>,
+    mut q_defender: Query<(&Name, Option<&mut Burning>), With<Character>>,
     q_burner: Query<(&Burn, &Name)>,
+    mut commands: Commands,
 ) {
     let BurnEvent {
         attacker,
         defender,
         with,
     } = trigger.event();
-    let (mut burned, defender_name) = q_defender.get_mut(*defender).expect("defender not found");
-    let attacker_name = q_attacker.get(*attacker).expect("attacker not found");
+    let (defender_name, maybe_burning) = q_defender
+        .get_mut(*defender)
+        .expect("defender should exist");
+    let attacker_name = q_attacker.get(*attacker).expect("attacker should exist");
 
-    let (burn, source_name) = q_burner.get(*with).expect("burn source not found");
-    burned.0 += burn.0;
+    let (burn, source_name) = q_burner.get(*with).expect("burn source should exist");
+
+    if let Some(mut burning) = maybe_burning {
+        burning.amount += burn.0;
+    } else {
+        // we need to add a new burning component to the defender
+        commands.entity(*defender).insert(Burning::new(burn.0));
+    }
 
     eprintln!(
         "{:?}: {:?} burned {:?} with {} for {}!",

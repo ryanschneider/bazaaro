@@ -65,7 +65,39 @@ ready to fight!
 We won in 15.015625s!  Simulated in 281.042µs
 ```
 
-Status:
+### How to handle server authority
+
+I see two paths for making the server authoritative.
+
+- Server executes battle and sends event stream to client, which is purely a passive viewer.
+- Server executes battle for actual result, but sends the initial conditions (including RNG seeds) to the client which executes the same code in real time instead of sped up.
+
+The shared-initial-state approach requires less overall serialization and thus a smaller "battle"
+payload, but is complicated by the fact that the game logic must behave identically on the client
+and server.
+
+The event-stream approach means the client can be a dumb viewer, but requires implementing an
+event stream serde and tracking all the events w/ 100% accuracy.
+
+Originally, I was definitely sold on the dumb viewer approach, but I'm actually leaning more and more
+towards the initial state approach instead, just because then it becomes a bit more 
+"normal game development".  Basically the server would run with a reduced plugin set that skips
+anything visual while the client would enable all the visual plugins.  As mentioned above the main
+trick is making sure that the game logic RNG seeds are shared and that all gameplay RNG is deterministic,
+which is to say that the visual plugins shouldn't "taint" the game logic RNG.  I'd actually probably go
+as far as to make the RNG semi-deterministic, e.g. the `Crit` component could use the entity id and 
+frame number as the seed.
+
+### If I wanted to make a actual game with this.
+
+I'd probably:
+
+- Do all the non-battle UI in a SPA or HTMX app.
+- Run the battle in wasm as either a dumb viewer or initial condition loader.
+- Hide and show the battle wasm for each battle.
+- Maybe use parts of the same wasm app for rug and inventory management.
+
+### Status:
 
 - The basics of systems for shielding, burn, poison, regen, heal, etc are all there just not fleshed out.  
 - Haste and slow will require reworking the cooldown tics (currently tracked in 100ms "tick" timesteps).
