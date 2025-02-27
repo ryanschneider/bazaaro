@@ -1,3 +1,4 @@
+use crate::effects::poison::Poison;
 use crate::items::usable::Usable;
 use crate::items::weapons::Weapon;
 use crate::items::Item;
@@ -56,6 +57,27 @@ impl GenericUsable {
             name: name.into(),
             item: Item,
             usable: Usable::with_cooldown(cooldown),
+        }
+    }
+}
+
+#[derive(Bundle)]
+pub struct PoisonedDagger {
+    pub name: Name,
+    pub item: Item,
+    pub usable: Usable,
+    pub weapon: Weapon,
+    pub poison: Poison,
+}
+
+impl Default for PoisonedDagger {
+    fn default() -> Self {
+        Self {
+            name: "Poisoned Dagger".into(),
+            item: Item,
+            usable: Usable::with_cooldown(Duration::from_secs(4)),
+            weapon: Weapon { damage: 3 },
+            poison: Poison::new(5),
         }
     }
 }
