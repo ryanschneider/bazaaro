@@ -19,7 +19,13 @@ fn main() {
         ))
         .insert_resource(Time::<Virtual>::from_max_delta(Duration::from_millis(100)))
         .init_state::<GameState>()
+        .add_systems(OnEnter(GameState::Results), exit_game)
         .run();
+}
+
+fn exit_game(mut app_exit_events: EventWriter<AppExit>) {
+    eprintln!("Game over! Exiting...");
+    app_exit_events.send(AppExit::Success);
 }
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
