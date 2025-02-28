@@ -47,6 +47,7 @@ impl Hastened {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn on_hastened(
     trigger: Trigger<HasteEvent>,
     time: Res<Time>,

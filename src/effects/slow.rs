@@ -47,6 +47,7 @@ impl Slowed {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn on_slowed(
     trigger: Trigger<SlowEvent>,
     time: Res<Time>,

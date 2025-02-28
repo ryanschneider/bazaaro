@@ -47,6 +47,7 @@ impl Frozen {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn on_frozen(
     trigger: Trigger<FreezeEvent>,
     time: Res<Time>,
