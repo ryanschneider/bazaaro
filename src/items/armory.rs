@@ -1,3 +1,4 @@
+use crate::effects::heal::Heal;
 use crate::effects::poison::Poison;
 use crate::items::usable::Usable;
 use crate::items::weapons::Weapon;
@@ -78,6 +79,25 @@ impl Default for PoisonedDagger {
             usable: Usable::with_cooldown(Duration::from_secs(4)),
             weapon: Weapon { damage: 3 },
             poison: Poison::new(5),
+        }
+    }
+}
+
+#[derive(Bundle)]
+pub struct HealingPotion {
+    pub name: Name,
+    pub item: Item,
+    pub usable: Usable,
+    pub heal: Heal,
+}
+
+impl Default for HealingPotion {
+    fn default() -> Self {
+        Self {
+            name: "Healing Potion".into(),
+            item: Item,
+            usable: Usable::with_cooldown(Duration::from_secs(5)),
+            heal: Heal::new(20),
         }
     }
 }
