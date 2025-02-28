@@ -5,52 +5,58 @@ use crate::fighting::TickEvent;
 use bevy::prelude::*;
 use std::time::Duration;
 
+#[allow(clippy::type_complexity)]
 pub fn tick_usable(
     _trigger: Trigger<TickEvent>,
     _time: Res<Time>,
-    mut q_usable: Query<(&mut Usable, Entity)>,
-    mut q_hastened: Query<(Entity, &mut Hastened)>,
-    mut q_slowed: Query<(Entity, &mut Slowed)>,
-    mut q_frozen: Query<(Entity, &mut Frozen)>,
+    mut query: Query<(
+        &mut Usable,
+        Entity,
+        Option<&mut Hastened>,
+        Option<&mut Slowed>,
+        Option<&mut Frozen>,
+    )>,
     mut commands: Commands,
 ) {
-    // First, tick all condition timers
+    // Track entities that need condition removal
     let mut entities_to_unfreeze = Vec::new();
     let mut entities_to_unhaste = Vec::new();
     let mut entities_to_unslow = Vec::new();
     
-    for (entity, mut frozen) in q_frozen.iter_mut() {
-        frozen.timer.tick(Duration::from_millis(100));
-        if frozen.timer.just_finished() {
-            eprintln!("Frozen condition expired on {:?}", entity);
-            entities_to_unfreeze.push(entity);
+    // Process all items and their conditions in a single loop
+    for (mut usable, entity, mut maybe_hastened, mut maybe_slowed, mut maybe_frozen) in query.iter_mut() {
+        // First, tick condition timers if they exist
+        if let Some(ref mut frozen) = maybe_frozen {
+            frozen.timer.tick(Duration::from_millis(100));
+            if frozen.timer.just_finished() {
+                eprintln!("Frozen condition expired on {:?}", entity);
+                entities_to_unfreeze.push(entity);
+            }
         }
-    }
-    
-    for (entity, mut hastened) in q_hastened.iter_mut() {
-        hastened.timer.tick(Duration::from_millis(100));
-        if hastened.timer.just_finished() {
-            eprintln!("Hastened condition expired on {:?}", entity);
-            entities_to_unhaste.push(entity);
+        
+        if let Some(ref mut hastened) = maybe_hastened {
+            hastened.timer.tick(Duration::from_millis(100));
+            if hastened.timer.just_finished() {
+                eprintln!("Hastened condition expired on {:?}", entity);
+                entities_to_unhaste.push(entity);
+            }
         }
-    }
-    
-    for (entity, mut slowed) in q_slowed.iter_mut() {
-        slowed.timer.tick(Duration::from_millis(100));
-        if slowed.timer.just_finished() {
-            eprintln!("Slowed condition expired on {:?}", entity);
-            entities_to_unslow.push(entity);
+        
+        if let Some(ref mut slowed) = maybe_slowed {
+            slowed.timer.tick(Duration::from_millis(100));
+            if slowed.timer.just_finished() {
+                eprintln!("Slowed condition expired on {:?}", entity);
+                entities_to_unslow.push(entity);
+            }
         }
-    }
-
-    // Then process the usable items
-    q_usable.iter_mut().for_each(|(mut usable, entity)| {
+        
+        // Process usable item cooldown
         let timer = &mut usable.cooldown;
         
-        // Check for conditions
-        let is_frozen = q_frozen.contains(entity);
-        let is_hastened = q_hastened.contains(entity);
-        let is_slowed = q_slowed.contains(entity);
+        // Determine which conditions are active
+        let is_frozen = maybe_frozen.is_some();
+        let is_hastened = maybe_hastened.is_some();
+        let is_slowed = maybe_slowed.is_some();
         
         // Apply the appropriate tick duration based on conditions
         if is_frozen {
@@ -75,7 +81,7 @@ pub fn tick_usable(
             // reset the cooldown
             usable.cooldown = Timer::new(timer.duration(), TimerMode::Once);
         }
-    });
+    }
     
     // Remove expired conditions at the end
     for entity in entities_to_unfreeze {
