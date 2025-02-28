@@ -52,10 +52,12 @@ fn load_characters(mut commands: Commands, mut next_state: ResMut<NextState<Game
             e.insert_if_new(Shield::new(10));
             e.id()
         };
+        let poisoned_dagger = commands.spawn(PoisonedDagger::default()).id();
         let mut items = Items::default();
         items.slots.extend(vec![
             Some(commands.spawn(HandAxe::default()).id()),
             Some(shield_talisman),
+            Some(poisoned_dagger),
         ]);
         let villain = commands
             .spawn((
