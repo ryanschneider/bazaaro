@@ -1,4 +1,5 @@
 use crate::items::burner::burner_used;
+use crate::items::healer::healer_used;
 use crate::items::poisoner::poisoner_used;
 use crate::items::shielder::shielder_used;
 use bevy::prelude::*;
@@ -7,6 +8,7 @@ use weapons::weapon_used;
 
 pub mod armory;
 mod burner;
+mod healer;
 mod poisoner;
 mod shielder;
 mod usable;
@@ -20,7 +22,8 @@ impl Plugin for ItemsPlugin {
             .add_observer(weapon_used)
             .add_observer(burner_used)
             .add_observer(poisoner_used)
-            .add_observer(shielder_used);
+            .add_observer(shielder_used)
+            .add_observer(healer_used);
     }
 }
 

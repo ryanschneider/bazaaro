@@ -31,7 +31,7 @@ impl PoisonEvent {
 
 #[derive(Component)]
 pub struct Poisoned {
-    amount: u32,
+    pub amount: u32,
     timer: Timer,
 }
 

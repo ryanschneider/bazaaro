@@ -23,11 +23,14 @@ fn load_characters(mut commands: Commands, mut next_state: ResMut<NextState<Game
             e.insert_if_new(Burn::new(15));
             e.id()
         };
+        
+        let healing_potion = commands.spawn(HealingPotion::default()).id();
 
         let mut items = Items::default();
         items.slots.extend(vec![
             Some(commands.spawn(HandAxe::default()).id()),
             Some(burning_great_sword),
+            Some(healing_potion),
         ]);
 
         let hero = commands
@@ -53,11 +56,13 @@ fn load_characters(mut commands: Commands, mut next_state: ResMut<NextState<Game
             e.id()
         };
         let poisoned_dagger = commands.spawn(PoisonedDagger::default()).id();
+        let healing_potion = commands.spawn(HealingPotion::default()).id();
         let mut items = Items::default();
         items.slots.extend(vec![
             Some(commands.spawn(HandAxe::default()).id()),
             Some(shield_talisman),
             Some(poisoned_dagger),
+            Some(healing_potion),
         ]);
         let villain = commands
             .spawn((
