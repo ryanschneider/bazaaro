@@ -25,12 +25,18 @@ fn load_characters(mut commands: Commands, mut next_state: ResMut<NextState<Game
         };
         
         let healing_potion = commands.spawn(HealingPotion::default()).id();
+        let gorgons_head = commands.spawn(GorgonsHead::default()).id();
+        let freezing_crystal = commands.spawn(FreezingCrystal::default()).id();
+        let haste_potion = commands.spawn(HastePotion::default()).id();
 
         let mut items = Items::default();
         items.slots.extend(vec![
             Some(commands.spawn(HandAxe::default()).id()),
             Some(burning_great_sword),
             Some(healing_potion),
+            Some(gorgons_head),
+            Some(freezing_crystal),
+            Some(haste_potion),
         ]);
 
         let hero = commands
