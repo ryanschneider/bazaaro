@@ -71,12 +71,7 @@ pub fn tick_burning(
                 return;
             }
 
-            eprintln!(
-                "{:?}: Burning {:?} for {}",
-                battle.elapsed(time.elapsed_secs_f64()),
-                name,
-                burn_amt,
-            );
+            eprintln!("{:?}: Burning {:?} for {}", battle.elapsed, name, burn_amt,);
 
             // if they have shields, burn that
             // not that it appears that any shield will block all burn
@@ -87,10 +82,7 @@ pub fn tick_burning(
                     shielded.0 = shielded.0.saturating_sub(burn_amt / 2);
                     eprintln!(
                         "{:?}: {} shield blocked {} burn, {} shield remains!",
-                        battle.elapsed(time.elapsed_secs_f64()),
-                        original_shielded,
-                        burn_amt,
-                        shielded.0,
+                        battle.elapsed, original_shielded, burn_amt, shielded.0,
                     );
                     if shielded.0 == 0 {
                         commands.entity(entity).remove::<Shielded>();
@@ -112,7 +104,6 @@ pub fn tick_burning(
 
 pub fn on_burned(
     trigger: Trigger<BurnEvent>,
-    time: Res<Time>,
     battle: Res<Battle>,
     q_attacker: Query<&Name>,
     mut q_defender: Query<(&Name, Option<&mut Burning>), With<Character>>,
@@ -140,10 +131,6 @@ pub fn on_burned(
 
     eprintln!(
         "{:?}: {:?} burned {:?} with {} for {}!",
-        battle.elapsed(time.elapsed_secs_f64()),
-        attacker_name,
-        defender_name,
-        source_name,
-        burn.0,
+        battle.elapsed, attacker_name, defender_name, source_name, burn.0,
     );
 }

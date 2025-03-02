@@ -36,7 +36,8 @@ pub fn hastener_used(
     let target_item = owner_items
         .slots
         .iter()
-        .filter_map(|slot| slot.as_ref().copied()).find(|item| *item != hastener_entity);
+        .filter_map(|slot| slot.as_ref().copied())
+        .find(|item| *item != hastener_entity);
 
     // If we found a target item, trigger the haste event
     if let Some(target_item) = target_item {

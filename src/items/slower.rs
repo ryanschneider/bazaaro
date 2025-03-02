@@ -26,7 +26,7 @@ pub fn slower_used(
 
     // Find the owner of this item
     let source_entity = parent.get();
-    
+
     // Find the opponent using the battle resource
     let opponent_entity = battle.opponent(source_entity);
 

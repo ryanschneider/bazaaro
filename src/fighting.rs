@@ -43,7 +43,9 @@ enum SystemSets {
 
 #[derive(Resource)]
 pub struct Battle {
+    #[allow(dead_code)]
     pub start: f64,
+    pub elapsed: Duration,
     pub over: bool,
     pub hero: Entity,
     pub villain: Entity,
@@ -58,10 +60,6 @@ impl Battle {
         } else {
             panic!("invalid opponent: {}", val)
         }
-    }
-
-    pub fn elapsed(&self, now: f64) -> Duration {
-        Duration::from_secs_f64(now - self.start)
     }
 }
 
@@ -82,6 +80,7 @@ pub fn setup_fight(
 
     commands.insert_resource(Battle {
         start: time.elapsed_secs_f64(),
+        elapsed: Duration::default(),
         over: false,
         hero,
         villain,
@@ -92,14 +91,12 @@ pub fn setup_fight(
 #[derive(Resource)]
 pub struct FightingTickers {
     pub per_tick: Timer,
-    pub per_second: Timer,
 }
 
 impl FightingTickers {
     pub fn new() -> Self {
         Self {
             per_tick: Timer::from_seconds(0.1, TimerMode::Repeating),
-            per_second: Timer::from_seconds(1.0, TimerMode::Repeating),
         }
     }
 }
@@ -107,15 +104,17 @@ impl FightingTickers {
 #[derive(Default, Event)]
 pub struct TickEvent;
 
-#[derive(Default, Event)]
-pub struct MajorTickEvent;
+pub fn tick(
+    mut tickers: ResMut<FightingTickers>,
+    mut battle: ResMut<Battle>,
+    time: Res<Time>,
+    mut commands: Commands,
+) {
+    battle.elapsed += time.delta();
 
-pub fn tick(mut tickers: ResMut<FightingTickers>, time: Res<Time>, mut commands: Commands) {
     if tickers.per_tick.tick(time.delta()).just_finished() {
+        // eprintln!("{:?}: ticked!", battle.elapsed);
         commands.trigger(TickEvent);
-    }
-    if tickers.per_second.tick(time.delta()).just_finished() {
-        commands.trigger(MajorTickEvent);
     }
 }
 
@@ -123,7 +122,6 @@ fn check_winner(
     changed: Query<(Entity, &Health), Changed<Health>>,
     query: Query<&Health>,
     mut battle: ResMut<Battle>,
-    time: Res<Time>,
     time_real: Res<Time<Real>>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
@@ -141,7 +139,7 @@ fn check_winner(
     };
     let villain_alive = villain.current > 0;
 
-    let duration = battle.elapsed(time.elapsed_secs_f64());
+    let duration = battle.elapsed;
     let wall_time = time_real.elapsed();
 
     match (hero_alive, villain_alive) {

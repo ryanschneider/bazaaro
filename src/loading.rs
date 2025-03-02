@@ -23,7 +23,7 @@ fn load_characters(mut commands: Commands, mut next_state: ResMut<NextState<Game
             e.insert_if_new(Burn::new(15));
             e.id()
         };
-        
+
         let healing_potion = commands.spawn(HealingPotion::default()).id();
         let gorgons_head = commands.spawn(GorgonsHead::default()).id();
         let freezing_crystal = commands.spawn(FreezingCrystal::default()).id();

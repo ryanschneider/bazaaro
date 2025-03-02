@@ -17,7 +17,7 @@ fn main() {
             effects::EffectsPlugin {},
             items::ItemsPlugin {},
         ))
-        .insert_resource(Time::<Virtual>::from_max_delta(Duration::from_millis(100)))
+        .insert_resource(Time::<Fixed>::from_duration(Duration::from_millis(100)))
         .init_state::<GameState>()
         .add_systems(OnEnter(GameState::Results), exit_game)
         .run();

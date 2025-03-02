@@ -41,7 +41,6 @@ impl Shielded {
 
 pub fn on_shield(
     trigger: Trigger<ShieldEvent>,
-    time: Res<Time>,
     battle: Res<Battle>,
     mut q_defender: Query<(&Name, Option<&mut Shielded>), With<Character>>,
     q_with: Query<(&Name, &Shield)>,
@@ -60,9 +59,6 @@ pub fn on_shield(
 
     eprintln!(
         "{:?}: {:?} shielded with {} for {}!",
-        battle.elapsed(time.elapsed_secs_f64()),
-        defender_name,
-        source_name,
-        shield.0,
+        battle.elapsed, defender_name, source_name, shield.0,
     );
 }

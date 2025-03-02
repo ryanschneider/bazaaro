@@ -16,5 +16,8 @@ pub fn poisoner_used(
 
     let attacker = parent.get();
     let defender = battle.opponent(attacker);
-    commands.trigger_targets(PoisonEvent::new(attacker, defender, poisoned_with), defender);
+    commands.trigger_targets(
+        PoisonEvent::new(attacker, defender, poisoned_with),
+        defender,
+    );
 }

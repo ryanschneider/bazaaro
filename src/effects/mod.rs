@@ -17,7 +17,7 @@ impl Plugin for EffectsPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(
             FixedUpdate,
-            (burn::tick_burning, poison::tick_poisoned,).run_if(in_state(GameState::Fight)),
+            (burn::tick_burning, poison::tick_poisoned).run_if(in_state(GameState::Fight)),
         )
         .add_event::<poison::PoisonEvent>()
         .add_event::<heal::HealEvent>()

@@ -50,7 +50,6 @@ impl Frozen {
 #[allow(clippy::too_many_arguments)]
 pub fn on_frozen(
     trigger: Trigger<FreezeEvent>,
-    time: Res<Time>,
     battle: Res<Battle>,
     q_source: Query<&Name>,
     q_target: Query<&Name, With<Item>>,
@@ -58,23 +57,27 @@ pub fn on_frozen(
     mut q_frozen_items: Query<&mut Frozen>,
     mut commands: Commands,
 ) {
-    let FreezeEvent { source, target, with } = trigger.event();
-    
+    let FreezeEvent {
+        source,
+        target,
+        with,
+    } = trigger.event();
+
     let source_name = q_source.get(*source).expect("source should exist");
     let target_name = q_target.get(*target).expect("target should exist");
-    
+
     let (freeze, item_name) = q_freeze.get(*with).expect("freeze source should exist");
-    
+
     // If the target already has the Frozen component, extend its duration
     match q_frozen_items.get_mut(*target) {
         Ok(mut frozen) => {
             let remaining = frozen.timer.remaining();
             frozen.timer.set_duration(remaining + freeze.duration);
             frozen.timer.reset();
-            
+
             eprintln!(
                 "{:?}: {:?} applied additional freeze to {} with {}! Total duration: {:?}",
-                battle.elapsed(time.elapsed_secs_f64()),
+                battle.elapsed,
                 source_name,
                 target_name,
                 item_name,
@@ -83,15 +86,13 @@ pub fn on_frozen(
         }
         Err(_) => {
             // Add a new Frozen component to the target item
-            commands.entity(*target).insert(Frozen::new(freeze.duration));
-            
+            commands
+                .entity(*target)
+                .insert(Frozen::new(freeze.duration));
+
             eprintln!(
                 "{:?}: {:?} froze {} with {} for {:?}!",
-                battle.elapsed(time.elapsed_secs_f64()),
-                source_name,
-                target_name,
-                item_name,
-                freeze.duration,
+                battle.elapsed, source_name, target_name, item_name, freeze.duration,
             );
         }
     }

@@ -12,10 +12,10 @@ pub fn healer_used(
         return;
     };
 
-    // Get the character using the heal item 
+    // Get the character using the heal item
     // (unlike other items, healer heals the user, not the opponent)
     let target = parent.get();
-    
+
     // Trigger healing on the user themselves
     commands.trigger_targets(HealEvent::new(target, heal_with), target);
 }

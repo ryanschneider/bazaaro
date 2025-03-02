@@ -54,7 +54,7 @@ pub fn tick_poisoned(
         .iter_mut()
         .for_each(|(entity, name, mut poisoned, mut health)| {
             poisoned.timer.tick(time.delta());
-            
+
             if !poisoned.timer.just_finished() {
                 return;
             }
@@ -67,9 +67,7 @@ pub fn tick_poisoned(
 
             eprintln!(
                 "{:?}: Poisoned {:?} for {}",
-                battle.elapsed(time.elapsed_secs_f64()),
-                name,
-                poison_amt,
+                battle.elapsed, name, poison_amt,
             );
 
             // Poison directly affects health, bypassing shields
@@ -79,7 +77,6 @@ pub fn tick_poisoned(
 
 pub fn on_poisoned(
     trigger: Trigger<PoisonEvent>,
-    time: Res<Time>,
     battle: Res<Battle>,
     q_attacker: Query<&Name>,
     mut q_defender: Query<(&Name, Option<&mut Poisoned>), With<Character>>,
@@ -107,10 +104,6 @@ pub fn on_poisoned(
 
     eprintln!(
         "{:?}: {:?} poisoned {:?} with {} for {}!",
-        battle.elapsed(time.elapsed_secs_f64()),
-        attacker_name,
-        defender_name,
-        source_name,
-        poison.0,
+        battle.elapsed, attacker_name, defender_name, source_name, poison.0,
     );
 }

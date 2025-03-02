@@ -24,7 +24,6 @@ impl AttackEvent {
 #[allow(clippy::type_complexity)]
 pub fn on_attack(
     trigger: Trigger<AttackEvent>,
-    time: Res<Time>,
     battle: Res<Battle>,
     q_attacker: Query<&Name>,
     mut q_defender: Query<(&mut Health, Option<&mut Shielded>, Option<&Name>), With<Character>>,
@@ -52,7 +51,7 @@ pub fn on_attack(
         Some(mut shielded) => {
             eprintln!(
                 "{:?}: {:?} shield blocked {}!",
-                battle.elapsed(time.elapsed_secs_f64()),
+                battle.elapsed,
                 defender_name,
                 damage.min(shielded.0)
             );
@@ -66,10 +65,6 @@ pub fn on_attack(
     health.current = health.current.saturating_sub(damage);
     eprintln!(
         "{:?}: {:?} damaged {:?} with {} for {}!",
-        battle.elapsed(time.elapsed_secs_f64()),
-        attacker_name,
-        defender_name,
-        weapon_name,
-        damage
+        battle.elapsed, attacker_name, defender_name, weapon_name, damage
     );
 }

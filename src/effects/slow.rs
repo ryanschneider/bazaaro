@@ -50,7 +50,6 @@ impl Slowed {
 #[allow(clippy::too_many_arguments)]
 pub fn on_slowed(
     trigger: Trigger<SlowEvent>,
-    time: Res<Time>,
     battle: Res<Battle>,
     q_source: Query<&Name>,
     q_target: Query<&Name, With<Item>>,
@@ -58,23 +57,27 @@ pub fn on_slowed(
     mut q_slowed_items: Query<&mut Slowed>,
     mut commands: Commands,
 ) {
-    let SlowEvent { source, target, with } = trigger.event();
-    
+    let SlowEvent {
+        source,
+        target,
+        with,
+    } = trigger.event();
+
     let source_name = q_source.get(*source).expect("source should exist");
     let target_name = q_target.get(*target).expect("target should exist");
-    
+
     let (slow, item_name) = q_slow.get(*with).expect("slow source should exist");
-    
+
     // If the target already has the Slowed component, extend its duration
     match q_slowed_items.get_mut(*target) {
         Ok(mut slowed) => {
             let remaining = slowed.timer.remaining();
             slowed.timer.set_duration(remaining + slow.duration);
             slowed.timer.reset();
-            
+
             eprintln!(
                 "{:?}: {:?} applied additional slow to {} with {}! Total duration: {:?}",
-                battle.elapsed(time.elapsed_secs_f64()),
+                battle.elapsed,
                 source_name,
                 target_name,
                 item_name,
@@ -84,14 +87,10 @@ pub fn on_slowed(
         Err(_) => {
             // Add a new Slowed component to the target item
             commands.entity(*target).insert(Slowed::new(slow.duration));
-            
+
             eprintln!(
                 "{:?}: {:?} slowed {} with {} for {:?}!",
-                battle.elapsed(time.elapsed_secs_f64()),
-                source_name,
-                target_name,
-                item_name,
-                slow.duration,
+                battle.elapsed, source_name, target_name, item_name, slow.duration,
             );
         }
     }
