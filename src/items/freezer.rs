@@ -13,20 +13,20 @@ pub fn freezer_used(
     trigger: Trigger<UseEvent>,
     battle: Res<Battle>,
     q_character: Query<(Entity, &Items), With<Character>>,
-    q_freezer: Query<(Entity, &Parent), With<Freezer>>,
+    q_freezer: Query<(Entity, &ChildOf), With<Freezer>>,
     mut commands: Commands,
 ) {
     // The entity that triggered the event
-    let freezer_entity = trigger.entity();
+    let freezer_entity = trigger.target();
 
     // Only continue if the item has the Freezer component
-    let (freezer_entity, parent) = match q_freezer.get(freezer_entity) {
+    let (freezer_entity, child_of) = match q_freezer.get(freezer_entity) {
         Ok(result) => result,
         Err(_) => return,
     };
 
     // Find the owner of this item
-    let source_entity = parent.get();
+    let source_entity = child_of.parent();
 
     // Find the opponent using the battle resource
     let opponent_entity = battle.opponent(source_entity);

@@ -4,14 +4,14 @@ use bevy::prelude::*;
 
 pub fn shielder_used(
     trigger: Trigger<UseEvent>,
-    query: Query<&Parent, With<Shield>>,
+    query: Query<&ChildOf, With<Shield>>,
     mut commands: Commands,
 ) {
-    let with = trigger.entity();
-    let Ok(parent) = query.get(with) else {
+    let with = trigger.target();
+    let Ok(child_of) = query.get(with) else {
         return;
     };
 
-    let defender = parent.get();
+    let defender = child_of.parent();
     commands.trigger_targets(ShieldEvent::new(defender, with), defender);
 }

@@ -12,20 +12,20 @@ pub fn slower_used(
     trigger: Trigger<UseEvent>,
     battle: Res<Battle>,
     q_character: Query<(Entity, &Items), With<Character>>,
-    q_slower: Query<(Entity, &Parent), With<Slower>>,
+    q_slower: Query<(Entity, &ChildOf), With<Slower>>,
     mut commands: Commands,
 ) {
     // The entity that triggered the event
-    let slower_entity = trigger.entity();
+    let slower_entity = trigger.target();
 
     // Only continue if the item has the Slower component
-    let (slower_entity, parent) = match q_slower.get(slower_entity) {
+    let (slower_entity, child_of) = match q_slower.get(slower_entity) {
         Ok(result) => result,
         Err(_) => return,
     };
 
     // Find the owner of this item
-    let source_entity = parent.get();
+    let source_entity = child_of.parent();
 
     // Find the opponent using the battle resource
     let opponent_entity = battle.opponent(source_entity);

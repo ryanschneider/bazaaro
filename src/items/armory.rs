@@ -9,8 +9,7 @@ use crate::items::slower::Slower;
 use crate::items::usable::Usable;
 use crate::items::weapons::Weapon;
 use crate::items::Item;
-use bevy::core::Name;
-use bevy::prelude::Bundle;
+use bevy::prelude::*;
 use std::time::Duration;
 
 #[derive(Bundle)]

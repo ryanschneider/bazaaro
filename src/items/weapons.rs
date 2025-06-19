@@ -10,16 +10,16 @@ pub struct Weapon {
 
 pub fn weapon_used(
     trigger: Trigger<UseEvent>,
-    query: Query<&Parent, With<Weapon>>,
+    query: Query<&ChildOf, With<Weapon>>,
     mut commands: Commands,
     battle: Res<Battle>,
 ) {
-    let attacked_with = trigger.entity();
-    let Ok(parent) = query.get(attacked_with) else {
+    let attacked_with = trigger.target();
+    let Ok(child_of) = query.get(attacked_with) else {
         return;
     };
 
-    let attacker = parent.get();
+    let attacker = child_of.parent();
     let defender = battle.opponent(attacker);
     commands.trigger_targets(
         AttackEvent::new(attacker, defender, attacked_with),

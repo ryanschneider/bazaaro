@@ -5,16 +5,16 @@ use bevy::prelude::*;
 
 pub fn poisoner_used(
     trigger: Trigger<UseEvent>,
-    query: Query<&Parent, With<Poison>>,
+    query: Query<&ChildOf, With<Poison>>,
     mut commands: Commands,
     battle: Res<Battle>,
 ) {
-    let poisoned_with = trigger.entity();
-    let Ok(parent) = query.get(poisoned_with) else {
+    let poisoned_with = trigger.target();
+    let Ok(child_of) = query.get(poisoned_with) else {
         return;
     };
 
-    let attacker = parent.get();
+    let attacker = child_of.parent();
     let defender = battle.opponent(attacker);
     commands.trigger_targets(
         PoisonEvent::new(attacker, defender, poisoned_with),

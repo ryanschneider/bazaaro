@@ -69,13 +69,13 @@ pub fn setup_fight(
     mut time: ResMut<Time<Virtual>>,
     mut q_hero: Query<(Entity, &mut Health), (With<Hero>, Without<Villain>)>,
     mut q_villain: Query<(Entity, &mut Health), (With<Villain>, Without<Hero>)>,
-) {
+) -> Result {
     time.set_relative_speed(100000.0);
 
-    let (hero, mut hero_health) = q_hero.single_mut();
+    let (hero, mut hero_health) = q_hero.single_mut()?;
     hero_health.reset();
 
-    let (villain, mut villain_health) = q_villain.single_mut();
+    let (villain, mut villain_health) = q_villain.single_mut()?;
     villain_health.reset();
 
     commands.insert_resource(Battle {
@@ -86,6 +86,7 @@ pub fn setup_fight(
         villain,
     });
     eprintln!("ready to fight!");
+    Ok(())
 }
 
 #[derive(Resource)]

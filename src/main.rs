@@ -1,11 +1,17 @@
+// Support configuring Bevy lints within code.
+#![cfg_attr(bevy_lint, feature(register_tool), register_tool(bevy))]
+// Disable console on Windows for non-dev builds.
+#![cfg_attr(not(feature = "dev"), windows_subsystem = "windows")]
+
 mod characters;
 mod effects;
 mod fighting;
 mod items;
 mod loading;
 
+use std::time::Duration;
 use bevy::prelude::*;
-use bevy::{app::ScheduleRunnerPlugin, utils::Duration};
+use bevy::{app::ScheduleRunnerPlugin};
 
 fn main() {
     App::new()
@@ -25,7 +31,7 @@ fn main() {
 
 fn exit_game(mut app_exit_events: EventWriter<AppExit>) {
     eprintln!("Game over! Exiting...");
-    app_exit_events.send(AppExit::Success);
+    app_exit_events.write(AppExit::Success);
 }
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]

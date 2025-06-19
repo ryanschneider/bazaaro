@@ -1,6 +1,5 @@
 use crate::characters::Character;
 use crate::fighting::Battle;
-use bevy::core::Name;
 use bevy::prelude::*;
 
 #[derive(Component)]

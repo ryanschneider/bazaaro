@@ -4,17 +4,17 @@ use bevy::prelude::*;
 
 pub fn healer_used(
     trigger: Trigger<UseEvent>,
-    query: Query<&Parent, With<Heal>>,
+    query: Query<&ChildOf, With<Heal>>,
     mut commands: Commands,
 ) {
-    let heal_with = trigger.entity();
-    let Ok(parent) = query.get(heal_with) else {
+    let heal_with = trigger.target();
+    let Ok(child_of) = query.get(heal_with) else {
         return;
     };
 
     // Get the character using the heal item
     // (unlike other items, healer heals the user, not the opponent)
-    let target = parent.get();
+    let target = child_of.parent();
 
     // Trigger healing on the user themselves
     commands.trigger_targets(HealEvent::new(target, heal_with), target);

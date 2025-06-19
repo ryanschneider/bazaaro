@@ -10,20 +10,20 @@ pub struct Hastener;
 pub fn hastener_used(
     trigger: Trigger<UseEvent>,
     q_character: Query<(Entity, &Items), With<Character>>,
-    q_hastener: Query<(Entity, &Parent), With<Hastener>>,
+    q_hastener: Query<(Entity, &ChildOf), With<Hastener>>,
     mut commands: Commands,
 ) {
     // The entity that triggered the event
-    let hastener_entity = trigger.entity();
+    let hastener_entity = trigger.target();
 
     // Only continue if the item has the Hastener component
-    let (hastener_entity, parent) = match q_hastener.get(hastener_entity) {
+    let (hastener_entity, child_of) = match q_hastener.get(hastener_entity) {
         Ok(result) => result,
         Err(_) => return,
     };
 
     // Find the owner of this item
-    let source_entity = parent.get();
+    let source_entity = child_of.parent();
 
     // The Haste Potion targets a friendly item (our own item)
     // We'll pick the leftmost item (which is usually a weapon) to make it more useful
