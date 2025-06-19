@@ -56,7 +56,7 @@ pub fn on_shield(
         commands.entity(*defender).insert(Shielded(shield.0));
     }
 
-    eprintln!(
+    info!(
         "{:?}: {:?} shielded with {} for {}!",
         battle.elapsed, defender_name, source_name, shield.0,
     );

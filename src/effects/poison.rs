@@ -65,7 +65,7 @@ pub fn tick_poisoned(
                 return;
             }
 
-            eprintln!(
+            info!(
                 "{:?}: Poisoned {:?} for {}",
                 battle.elapsed, name, poison_amt,
             );
@@ -102,7 +102,7 @@ pub fn on_poisoned(
         commands.entity(*defender).insert(Poisoned::new(poison.0));
     }
 
-    eprintln!(
+    info!(
         "{:?}: {:?} poisoned {:?} with {} for {}!",
         battle.elapsed, attacker_name, defender_name, source_name, poison.0,
     );

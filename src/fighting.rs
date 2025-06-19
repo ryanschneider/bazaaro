@@ -85,7 +85,7 @@ pub fn setup_fight(
         hero,
         villain,
     });
-    eprintln!("ready to fight!");
+    info!("ready to fight!");
     Ok(())
 }
 
@@ -112,7 +112,7 @@ pub fn tick(
     mut commands: Commands,
 ) {
     if tickers.per_tick.tick(time.delta()).just_finished() {
-        eprintln!("{:?}: ticked!", battle.elapsed);
+        debug!("{:?}: ticked!", battle.elapsed);
         commands.trigger(TickEvent);
     }
 
@@ -144,22 +144,31 @@ fn check_winner(
 
     match (hero_alive, villain_alive) {
         (true, false) => {
-            eprintln!("We won in {:?}!  Simulated in {:?}", battle.elapsed, wall_time);
+            info!(
+                "We won in {:?}!  Simulated in {:?}",
+                battle.elapsed, wall_time
+            );
             battle.over = true;
             next_state.set(GameState::Results);
         }
         (false, true) => {
-            eprintln!("We lost in {:?}!  Simulated in {:?}", battle.elapsed, wall_time);
+            info!(
+                "We lost in {:?}!  Simulated in {:?}",
+                battle.elapsed, wall_time
+            );
             battle.over = true;
             next_state.set(GameState::Results);
         }
         (false, false) => {
-            eprintln!("We tied in {:?}!  Simulated in {:?}", battle.elapsed, wall_time);
+            info!(
+                "We tied in {:?}!  Simulated in {:?}",
+                battle.elapsed, wall_time
+            );
             battle.over = true;
             next_state.set(GameState::Results);
         }
         (true, true) => {
-            eprintln!(
+            info!(
                 "{:?}: Hero: {} Villain: {}",
                 battle.elapsed, hero.current, villain.current,
             );

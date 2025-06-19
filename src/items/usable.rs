@@ -26,7 +26,7 @@ pub fn tick_usable(
         if let Some(ref mut frozen) = maybe_frozen {
             frozen.timer.tick(Duration::from_millis(100));
             if frozen.timer.just_finished() {
-                eprintln!(
+                info!(
                     "{:?}: Frozen condition expired on {:?}",
                     battle.elapsed, entity
                 );
@@ -37,7 +37,7 @@ pub fn tick_usable(
         if let Some(ref mut hastened) = maybe_hastened {
             hastened.timer.tick(Duration::from_millis(100));
             if hastened.timer.just_finished() {
-                eprintln!(
+                info!(
                     "{:?}: Hastened condition expired on {:?}",
                     battle.elapsed, entity
                 );
@@ -48,7 +48,7 @@ pub fn tick_usable(
         if let Some(ref mut slowed) = maybe_slowed {
             slowed.timer.tick(Duration::from_millis(100));
             if slowed.timer.just_finished() {
-                eprintln!(
+                info!(
                     "{:?}: Slowed condition expired on {:?}",
                     battle.elapsed, entity
                 );
@@ -83,7 +83,7 @@ pub fn tick_usable(
         }
 
         if timer.just_finished() {
-            eprintln!("{:?}: used {}!", battle.elapsed, entity);
+            info!("{:?}: used {}!", battle.elapsed, entity);
 
             commands.trigger_targets(UseEvent {}, entity);
             // reset the cooldown

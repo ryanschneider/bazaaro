@@ -71,7 +71,7 @@ pub fn tick_burning(
                 return;
             }
 
-            eprintln!("{:?}: Burning {:?} for {}", battle.elapsed, name, burn_amt,);
+            info!("{:?}: Burning {:?} for {}", battle.elapsed, name, burn_amt,);
 
             // if they have shields, burn that
             // not that it appears that any shield will block all burn
@@ -80,7 +80,7 @@ pub fn tick_burning(
                 Some(mut shielded) if shielded.0 > 0 => {
                     let original_shielded = shielded.0;
                     shielded.0 = shielded.0.saturating_sub(burn_amt / 2);
-                    eprintln!(
+                    info!(
                         "{:?}: {} shield blocked {} burn, {} shield remains!",
                         battle.elapsed, original_shielded, burn_amt, shielded.0,
                     );
@@ -129,7 +129,7 @@ pub fn on_burned(
         commands.entity(*defender).insert(Burning::new(burn.0));
     }
 
-    eprintln!(
+    info!(
         "{:?}: {:?} burned {:?} with {} for {}!",
         battle.elapsed, attacker_name, defender_name, source_name, burn.0,
     );

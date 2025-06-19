@@ -20,7 +20,8 @@ tracing = { version = "0.1", features = [
 version = "0.16.1"
 default-features = false
 features = [
-    "bevy_state"
+    "bevy_state",
+    "bevy_log"
 ]
 
 # Your web builds will start failing if you add a dependency that pulls in `getrandom` v0.3+.

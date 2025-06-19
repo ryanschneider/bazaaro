@@ -49,7 +49,7 @@ pub fn on_attack(
     let damage = match maybe_shielded {
         None => damage,
         Some(mut shielded) => {
-            eprintln!(
+            info!(
                 "{:?}: {:?} shield blocked {}!",
                 battle.elapsed,
                 defender_name,
@@ -63,7 +63,7 @@ pub fn on_attack(
     }
 
     health.current = health.current.saturating_sub(damage);
-    eprintln!(
+    info!(
         "{:?}: {:?} damaged {:?} with {} for {}!",
         battle.elapsed, attacker_name, defender_name, weapon_name, damage
     );

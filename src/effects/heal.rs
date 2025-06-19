@@ -50,7 +50,7 @@ pub fn on_heal(
     if actual_healing > 0 {
         health.current += actual_healing;
 
-        eprintln!(
+        info!(
             "{:?}: {:?} healed for {} using {}!",
             battle.elapsed, target_name, actual_healing, source_name,
         );
@@ -61,7 +61,7 @@ pub fn on_heal(
         if poisoned.amount > 0 {
             poisoned.amount = poisoned.amount.saturating_sub(1);
 
-            eprintln!(
+            info!(
                 "{:?}: Healing reduced poison by 1 for {:?}!",
                 battle.elapsed, target_name,
             );
@@ -70,7 +70,7 @@ pub fn on_heal(
             if poisoned.amount == 0 {
                 commands.entity(entity).remove::<Poisoned>();
 
-                eprintln!(
+                info!(
                     "{:?}: {:?} is no longer poisoned!",
                     battle.elapsed, target_name,
                 );

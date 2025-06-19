@@ -9,15 +9,38 @@ mod fighting;
 mod items;
 mod loading;
 
-use std::time::Duration;
+use bevy::app::ScheduleRunnerPlugin;
 use bevy::prelude::*;
-use bevy::{app::ScheduleRunnerPlugin};
+use std::time::Duration;
+use bevy::log::tracing_subscriber;
+use bevy::log::tracing_subscriber::{fmt, prelude::*};
 
 fn main() {
+    let format = fmt::format()
+        .compact()
+        .without_time() // Don't include timestamp
+        .with_target(false) // Don't include module (target)
+        .with_level(true);
+
+    let layer = tracing_subscriber::fmt::layer()
+        .event_format(format) // Apply your custom format
+        .with_writer(std::io::stdout) // Or your desired writer
+        .boxed();
+
+    tracing_subscriber::registry()
+        .with(layer)
+        .init();
+
     App::new()
         .add_plugins((
             // Run ScheduleRunnerPlugin as fas as possible (no waiting):
-            DefaultPlugins.set(ScheduleRunnerPlugin::default()),
+            DefaultPlugins
+                .set(ScheduleRunnerPlugin::default())
+                .set(bevy::log::LogPlugin {
+                    level: bevy::log::Level::INFO,
+                    // filter: "wgpu=warn,bevy_ecs=info".to_string(),
+                    ..default()
+                }),
             loading::LoadingPlugin {},
             fighting::FightingPlugin {},
             effects::EffectsPlugin {},
@@ -30,7 +53,7 @@ fn main() {
 }
 
 fn exit_game(mut app_exit_events: EventWriter<AppExit>) {
-    eprintln!("Game over! Exiting...");
+    info!("Game over! Exiting...");
     app_exit_events.write(AppExit::Success);
 }
 
