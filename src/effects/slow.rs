@@ -76,7 +76,7 @@ pub fn on_slowed(
             slowed.timer.reset();
 
             info!(
-                "{:?}: {:?} applied additional slow to {} with {}! Total duration: {:?}",
+                "{:?}: {:?} applied additional slow to {:?} with {:?}! Total duration: {:?}",
                 battle.elapsed,
                 source_name,
                 target_name,
@@ -89,7 +89,7 @@ pub fn on_slowed(
             commands.entity(*target).insert(Slowed::new(slow.duration));
 
             info!(
-                "{:?}: {:?} slowed {} with {} for {:?}!",
+                "{:?}: {:?} slowed {:?} with {:?} for {:?}!",
                 battle.elapsed, source_name, target_name, item_name, slow.duration,
             );
         }

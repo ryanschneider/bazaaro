@@ -57,7 +57,7 @@ pub fn on_shield(
     }
 
     info!(
-        "{:?}: {:?} shielded with {} for {}!",
+        "{:?}: {:?} shielded with {:?} for {:?}!",
         battle.elapsed, defender_name, source_name, shield.0,
     );
 }

@@ -51,7 +51,7 @@ pub fn on_heal(
         health.current += actual_healing;
 
         info!(
-            "{:?}: {:?} healed for {} using {}!",
+            "{:?}: {:?} healed for {:?} using {:?}!",
             battle.elapsed, target_name, actual_healing, source_name,
         );
     }

@@ -76,7 +76,7 @@ pub fn on_frozen(
             frozen.timer.reset();
 
             info!(
-                "{:?}: {:?} applied additional freeze to {} with {}! Total duration: {:?}",
+                "{:?}: {:?} applied additional freeze to {:?} with {:?}! Total duration: {:?}",
                 battle.elapsed,
                 source_name,
                 target_name,
@@ -91,7 +91,7 @@ pub fn on_frozen(
                 .insert(Frozen::new(freeze.duration));
 
             info!(
-                "{:?}: {:?} froze {} with {} for {:?}!",
+                "{:?}: {:?} froze {:?} with {:?} for {:?}!",
                 battle.elapsed, source_name, target_name, item_name, freeze.duration,
             );
         }

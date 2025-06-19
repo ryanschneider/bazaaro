@@ -58,7 +58,7 @@ impl Battle {
         } else if val == self.villain {
             self.hero
         } else {
-            panic!("invalid opponent: {}", val)
+            panic!("invalid opponent: {:?}", val)
         }
     }
 }
@@ -169,7 +169,7 @@ fn check_winner(
         }
         (true, true) => {
             info!(
-                "{:?}: Hero: {} Villain: {}",
+                "{:?}: Hero: {:?} Villain: {:?}",
                 battle.elapsed, hero.current, villain.current,
             );
         }

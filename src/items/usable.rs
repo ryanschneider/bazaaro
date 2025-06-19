@@ -12,6 +12,7 @@ pub fn tick_usable(
     mut query: Query<(
         &mut Usable,
         Entity,
+        &Name,
         Option<&mut Hastened>,
         Option<&mut Slowed>,
         Option<&mut Frozen>,
@@ -19,7 +20,7 @@ pub fn tick_usable(
     mut commands: Commands,
 ) {
     // Process all items and their conditions in a single loop
-    for (mut usable, entity, mut maybe_hastened, mut maybe_slowed, mut maybe_frozen) in
+    for (mut usable, entity, name, mut maybe_hastened, mut maybe_slowed, mut maybe_frozen) in
         query.iter_mut()
     {
         // First, tick condition timers if they exist
@@ -28,7 +29,7 @@ pub fn tick_usable(
             if frozen.timer.just_finished() {
                 info!(
                     "{:?}: Frozen condition expired on {:?}",
-                    battle.elapsed, entity
+                    battle.elapsed, name
                 );
                 commands.entity(entity).remove::<Frozen>();
             }
@@ -39,7 +40,7 @@ pub fn tick_usable(
             if hastened.timer.just_finished() {
                 info!(
                     "{:?}: Hastened condition expired on {:?}",
-                    battle.elapsed, entity
+                    battle.elapsed, name
                 );
                 commands.entity(entity).remove::<Hastened>();
             }
@@ -50,7 +51,7 @@ pub fn tick_usable(
             if slowed.timer.just_finished() {
                 info!(
                     "{:?}: Slowed condition expired on {:?}",
-                    battle.elapsed, entity
+                    battle.elapsed, name
                 );
                 commands.entity(entity).remove::<Slowed>();
             }
@@ -83,7 +84,7 @@ pub fn tick_usable(
         }
 
         if timer.just_finished() {
-            info!("{:?}: used {}!", battle.elapsed, entity);
+            info!("{:?}: used {:?}!", battle.elapsed, name);
 
             commands.trigger_targets(UseEvent {}, entity);
             // reset the cooldown

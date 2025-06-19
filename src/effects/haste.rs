@@ -76,7 +76,7 @@ pub fn on_hastened(
             hastened.timer.reset();
 
             info!(
-                "{:?}: {:?} applied additional haste to {} with {}! Total duration: {:?}",
+                "{:?}: {:?} applied additional haste to {:?} with {:?}! Total duration: {:?}",
                 battle.elapsed,
                 source_name,
                 target_name,
@@ -91,7 +91,7 @@ pub fn on_hastened(
                 .insert(Hastened::new(haste.duration));
 
             info!(
-                "{:?}: {:?} hastened {} with {} for {:?}!",
+                "{:?}: {:?} hastened {:?} with {:?} for {:?}!",
                 battle.elapsed, source_name, target_name, item_name, haste.duration,
             );
         }

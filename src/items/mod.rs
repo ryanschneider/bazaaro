@@ -37,4 +37,5 @@ impl Plugin for ItemsPlugin {
 }
 
 #[derive(Component)]
+#[require(Name)]
 pub struct Item;

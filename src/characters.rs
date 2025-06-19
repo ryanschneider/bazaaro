@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 #[derive(Default, Component)]
-#[require(Health, Items)]
+#[require(Health, Items, Name)]
 pub struct Character;
 
 #[derive(Default, Component)]

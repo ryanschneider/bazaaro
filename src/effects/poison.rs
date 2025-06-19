@@ -66,7 +66,7 @@ pub fn tick_poisoned(
             }
 
             info!(
-                "{:?}: Poisoned {:?} for {}",
+                "{:?}: Poisoned {:?} for {:?}",
                 battle.elapsed, name, poison_amt,
             );
 
@@ -103,7 +103,7 @@ pub fn on_poisoned(
     }
 
     info!(
-        "{:?}: {:?} poisoned {:?} with {} for {}!",
+        "{:?}: {:?} poisoned {:?} with {:?} for {:?}!",
         battle.elapsed, attacker_name, defender_name, source_name, poison.0,
     );
 }
