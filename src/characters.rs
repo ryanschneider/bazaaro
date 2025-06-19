@@ -1,3 +1,5 @@
+use std::ops::Deref;
+use std::slice;
 use bevy::prelude::*;
 
 #[derive(Default, Component)]
@@ -31,20 +33,37 @@ impl Health {
     }
 }
 
-#[derive(Default, Component)]
-pub struct Items {
-    pub slots: Vec<Option<Entity>>,
-}
+#[derive(Component, Debug)]
+#[relationship(relationship_target = Items)]
+pub struct ItemOf(Entity);
 
-impl Items {
-    pub fn attach_to(self, owner: Entity, commands: &mut Commands) {
-        let binding = self
-            .slots
-            .iter()
-            .filter_map(|slot| slot.as_ref().copied())
-            .collect::<Vec<_>>();
-        let children: &[Entity] = binding.as_slice();
-        commands.entity(owner).insert(self);
-        commands.entity(owner).add_children(children);
+impl ItemOf {
+    pub fn owner(&self) -> Entity {
+        self.0
     }
 }
+
+
+#[derive(Default, Debug, Component)]
+#[relationship_target(relationship = ItemOf)]
+pub struct Items(Vec<Entity>);
+
+impl<'a> IntoIterator for &'a Items {
+    type Item = <Self::IntoIter as Iterator>::Item;
+
+    type IntoIter = slice::Iter<'a, Entity>;
+
+    #[inline(always)]
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter()
+    }
+}
+
+impl Deref for Items {
+    type Target = [Entity];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::characters::{Character, Items};
+use crate::characters::{Character, ItemOf, Items};
 use crate::effects::slow::SlowEvent;
 use crate::fighting::Battle;
 use crate::items::usable::UseEvent;
@@ -12,20 +12,20 @@ pub fn slower_used(
     trigger: Trigger<UseEvent>,
     battle: Res<Battle>,
     q_character: Query<(Entity, &Items), With<Character>>,
-    q_slower: Query<(Entity, &ChildOf), With<Slower>>,
+    q_slower: Query<(Entity, &ItemOf), With<Slower>>,
     mut commands: Commands,
 ) {
     // The entity that triggered the event
     let slower_entity = trigger.target();
 
     // Only continue if the item has the Slower component
-    let (slower_entity, child_of) = match q_slower.get(slower_entity) {
+    let (slower_entity, item_of) = match q_slower.get(slower_entity) {
         Ok(result) => result,
         Err(_) => return,
     };
 
     // Find the owner of this item
-    let source_entity = child_of.parent();
+    let source_entity = item_of.owner();
 
     // Find the opponent using the battle resource
     let opponent_entity = battle.opponent(source_entity);
@@ -38,10 +38,8 @@ pub fn slower_used(
 
     // Get the rightmost non-empty slot
     let target_item = opponent_items
-        .slots
         .iter()
-        .rev() // Start from the right
-        .filter_map(|slot| slot.as_ref().copied())
+        .rev()
         .next();
 
     // If we found a target item, trigger the slow event

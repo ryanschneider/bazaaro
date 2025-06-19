@@ -13,74 +13,50 @@ impl Plugin for LoadingPlugin {
 
 fn load_characters(mut commands: Commands, mut next_state: ResMut<NextState<GameState>>) {
     // Spawn our Hero
-    let _hero = {
-        let burning_great_sword = {
-            let mut e = commands.spawn(GenericWeapon::new(
-                "Burning Great Sword",
-                10,
-                Duration::from_secs(5),
-            ));
-            e.insert_if_new(Burn::new(15));
-            e.id()
-        };
+    let _hero = commands
+        .spawn((
+            Name::new("Our Hero"),
+            Character,
+            Health::starting(250),
+            Hero,
+        ))
+        .with_related_entities::<ItemOf>(|commands| {
+            let _burning_great_sword = {
+                let mut e = commands.spawn(GenericWeapon::new(
+                    "Burning Great Sword",
+                    10,
+                    Duration::from_secs(5),
+                ));
+                e.insert_if_new(Burn::new(15));
+                e.id()
+            };
 
-        let healing_potion = commands.spawn(HealingPotion::default()).id();
-        let gorgons_head = commands.spawn(GorgonsHead::default()).id();
-        let freezing_crystal = commands.spawn(FreezingCrystal::default()).id();
-        let haste_potion = commands.spawn(HastePotion::default()).id();
-
-        let mut items = Items::default();
-        items.slots.extend(vec![
-            Some(commands.spawn(HandAxe::default()).id()),
-            Some(burning_great_sword),
-            Some(healing_potion),
-            Some(gorgons_head),
-            Some(freezing_crystal),
-            Some(haste_potion),
-        ]);
-
-        let hero = commands
-            .spawn((
-                Name::new("Our Hero"),
-                Character,
-                Health::starting(250),
-                Hero,
-            ))
-            .id();
-        items.attach_to(hero, &mut commands);
-        hero
-    };
+            let _healing_potion = commands.spawn(HealingPotion::default()).id();
+            let _gorgons_head = commands.spawn(GorgonsHead::default()).id();
+            let _freezing_crystal = commands.spawn(FreezingCrystal::default()).id();
+            let _haste_potion = commands.spawn(HastePotion::default()).id();
+        });
 
     // And our opponent!
-    let _villain = {
-        let shield_talisman = {
-            let mut e = commands.spawn(GenericUsable::new(
-                "Shielded Talisman",
-                Duration::from_secs_f32(5.5),
-            ));
-            e.insert_if_new(Shield::new(10));
-            e.id()
-        };
-        let poisoned_dagger = commands.spawn(PoisonedDagger::default()).id();
-        let healing_potion = commands.spawn(HealingPotion::default()).id();
-        let mut items = Items::default();
-        items.slots.extend(vec![
-            Some(commands.spawn(HandAxe::default()).id()),
-            Some(shield_talisman),
-            Some(poisoned_dagger),
-            Some(healing_potion),
-        ]);
-        let villain = commands
-            .spawn((
-                Name::new("Evil Henchman"),
-                Character,
-                Health::starting(150),
-                Villain,
-            ))
-            .id();
-        items.attach_to(villain, &mut commands);
-        villain
-    };
+    let _villain = commands
+        .spawn((
+            Name::new("Evil Henchman"),
+            Character,
+            Health::starting(150),
+            Villain,
+        ))
+        .with_related_entities::<ItemOf>(|commands| {
+            let _shield_talisman = {
+                let mut e = commands.spawn(GenericUsable::new(
+                    "Shielded Talisman",
+                    Duration::from_secs_f32(5.5),
+                ));
+                e.insert_if_new(Shield::new(10));
+                e.id()
+            };
+            let _poisoned_dagger = commands.spawn(PoisonedDagger::default()).id();
+            let _healing_potion = commands.spawn(HealingPotion::default()).id();
+        });
 
     // and start fighting!
     next_state.set(GameState::Fight);
