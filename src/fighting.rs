@@ -12,7 +12,7 @@ impl Plugin for FightingPlugin {
             (setup_fight,).in_set(SystemSets::OnEnter),
         );
         app.add_systems(
-            FixedUpdate,
+            FixedPreUpdate,
             (tick,)
                 .in_set(SystemSets::Ticking)
                 .run_if(in_state(GameState::Fight))
@@ -110,12 +110,12 @@ pub fn tick(
     time: Res<Time>,
     mut commands: Commands,
 ) {
-    battle.elapsed += time.delta();
-
     if tickers.per_tick.tick(time.delta()).just_finished() {
-        // eprintln!("{:?}: ticked!", battle.elapsed);
+        eprintln!("{:?}: ticked!", battle.elapsed);
         commands.trigger(TickEvent);
     }
+
+    battle.elapsed += time.delta();
 }
 
 fn check_winner(
@@ -139,29 +139,28 @@ fn check_winner(
     };
     let villain_alive = villain.current > 0;
 
-    let duration = battle.elapsed;
     let wall_time = time_real.elapsed();
 
     match (hero_alive, villain_alive) {
         (true, false) => {
-            eprintln!("We won in {:?}!  Simulated in {:?}", duration, wall_time);
+            eprintln!("We won in {:?}!  Simulated in {:?}", battle.elapsed, wall_time);
             battle.over = true;
             next_state.set(GameState::Results);
         }
         (false, true) => {
-            eprintln!("We lost in {:?}!  Simulated in {:?}", duration, wall_time);
+            eprintln!("We lost in {:?}!  Simulated in {:?}", battle.elapsed, wall_time);
             battle.over = true;
             next_state.set(GameState::Results);
         }
         (false, false) => {
-            eprintln!("We tied in {:?}!  Simulated in {:?}", duration, wall_time);
+            eprintln!("We tied in {:?}!  Simulated in {:?}", battle.elapsed, wall_time);
             battle.over = true;
             next_state.set(GameState::Results);
         }
         (true, true) => {
             eprintln!(
                 "{:?}: Hero: {} Villain: {}",
-                duration, hero.current, villain.current,
+                battle.elapsed, hero.current, villain.current,
             );
         }
     };

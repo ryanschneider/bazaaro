@@ -18,11 +18,6 @@ pub fn tick_usable(
     )>,
     mut commands: Commands,
 ) {
-    // Track entities that need condition removal
-    let mut entities_to_unfreeze = Vec::new();
-    let mut entities_to_unhaste = Vec::new();
-    let mut entities_to_unslow = Vec::new();
-
     // Process all items and their conditions in a single loop
     for (mut usable, entity, mut maybe_hastened, mut maybe_slowed, mut maybe_frozen) in
         query.iter_mut()
@@ -35,7 +30,7 @@ pub fn tick_usable(
                     "{:?}: Frozen condition expired on {:?}",
                     battle.elapsed, entity
                 );
-                entities_to_unfreeze.push(entity);
+                commands.entity(entity).remove::<Frozen>();
             }
         }
 
@@ -46,7 +41,7 @@ pub fn tick_usable(
                     "{:?}: Hastened condition expired on {:?}",
                     battle.elapsed, entity
                 );
-                entities_to_unhaste.push(entity);
+                commands.entity(entity).remove::<Hastened>();
             }
         }
 
@@ -57,7 +52,7 @@ pub fn tick_usable(
                     "{:?}: Slowed condition expired on {:?}",
                     battle.elapsed, entity
                 );
-                entities_to_unslow.push(entity);
+                commands.entity(entity).remove::<Slowed>();
             }
         }
 
@@ -88,23 +83,12 @@ pub fn tick_usable(
         }
 
         if timer.just_finished() {
+            eprintln!("{:?}: used {}!", battle.elapsed, entity);
+
             commands.trigger_targets(UseEvent {}, entity);
             // reset the cooldown
             usable.cooldown = Timer::new(timer.duration(), TimerMode::Once);
         }
-    }
-
-    // Remove expired conditions at the end
-    for entity in entities_to_unfreeze {
-        commands.entity(entity).remove::<Frozen>();
-    }
-
-    for entity in entities_to_unhaste {
-        commands.entity(entity).remove::<Hastened>();
-    }
-
-    for entity in entities_to_unslow {
-        commands.entity(entity).remove::<Slowed>();
     }
 }
 
