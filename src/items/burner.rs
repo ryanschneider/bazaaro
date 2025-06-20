@@ -1,8 +1,8 @@
+use crate::characters::ItemOf;
 use crate::effects::burn::{Burn, BurnEvent};
 use crate::fighting::Battle;
 use crate::items::usable::UseEvent;
 use bevy::prelude::*;
-use crate::characters::ItemOf;
 
 pub fn burner_used(
     trigger: Trigger<UseEvent>,

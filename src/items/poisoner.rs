@@ -1,8 +1,8 @@
+use crate::characters::ItemOf;
 use crate::effects::poison::{Poison, PoisonEvent};
 use crate::fighting::Battle;
 use crate::items::usable::UseEvent;
 use bevy::prelude::*;
-use crate::characters::ItemOf;
 
 pub fn poisoner_used(
     trigger: Trigger<UseEvent>,

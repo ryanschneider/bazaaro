@@ -71,7 +71,10 @@ pub fn tick_burning(
                 return;
             }
 
-            info!("{:?}: Burning {:?} for {:?}", battle.elapsed, name, burn_amt,);
+            info!(
+                "{:?}: Burning {:?} for {:?}",
+                battle.elapsed, name, burn_amt,
+            );
 
             // if they have shields, burn that
             // not that it appears that any shield will block all burn

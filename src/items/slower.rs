@@ -37,10 +37,7 @@ pub fn slower_used(
     };
 
     // Get the rightmost non-empty slot
-    let target_item = opponent_items
-        .iter()
-        .rev()
-        .next();
+    let target_item = opponent_items.iter().next_back();
 
     // If we found a target item, trigger the slow event
     if let Some(target_item) = target_item {

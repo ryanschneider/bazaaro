@@ -1,7 +1,7 @@
+use crate::characters::ItemOf;
 use crate::effects::shield::{Shield, ShieldEvent};
 use crate::items::usable::UseEvent;
 use bevy::prelude::*;
-use crate::characters::ItemOf;
 
 pub fn shielder_used(
     trigger: Trigger<UseEvent>,

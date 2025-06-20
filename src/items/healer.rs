@@ -1,7 +1,7 @@
+use crate::characters::ItemOf;
 use crate::effects::heal::{Heal, HealEvent};
 use crate::items::usable::UseEvent;
 use bevy::prelude::*;
-use crate::characters::ItemOf;
 
 pub fn healer_used(
     trigger: Trigger<UseEvent>,

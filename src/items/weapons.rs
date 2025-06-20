@@ -1,8 +1,8 @@
+use crate::characters::ItemOf;
 use crate::effects::attack::AttackEvent;
 use crate::fighting::Battle;
 use crate::items::usable::UseEvent;
 use bevy::prelude::*;
-use crate::characters::ItemOf;
 
 #[derive(Component)]
 pub struct Weapon {

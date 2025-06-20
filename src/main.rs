@@ -10,10 +10,10 @@ mod items;
 mod loading;
 
 use bevy::app::ScheduleRunnerPlugin;
-use bevy::prelude::*;
-use std::time::Duration;
 use bevy::log::tracing_subscriber;
 use bevy::log::tracing_subscriber::{fmt, prelude::*};
+use bevy::prelude::*;
+use std::time::Duration;
 
 fn main() {
     let format = fmt::format()
@@ -27,9 +27,7 @@ fn main() {
         .with_writer(std::io::stdout) // Or your desired writer
         .boxed();
 
-    tracing_subscriber::registry()
-        .with(layer)
-        .init();
+    tracing_subscriber::registry().with(layer).init();
 
     App::new()
         .add_plugins((

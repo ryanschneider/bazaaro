@@ -1,6 +1,6 @@
+use bevy::prelude::*;
 use std::ops::Deref;
 use std::slice;
-use bevy::prelude::*;
 
 #[derive(Default, Component)]
 #[require(Health, Items, Name)]
@@ -43,7 +43,6 @@ impl ItemOf {
     }
 }
 
-
 #[derive(Default, Debug, Component)]
 #[relationship_target(relationship = ItemOf)]
 pub struct Items(Vec<Entity>);
@@ -66,4 +65,3 @@ impl Deref for Items {
         &self.0
     }
 }
-

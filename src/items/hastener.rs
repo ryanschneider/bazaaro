@@ -33,9 +33,7 @@ pub fn hastener_used(
     };
 
     // Get the leftmost non-empty slot (but not the haste potion itself)
-    let target_item = owner_items
-        .iter()
-        .find(|item| *item != hastener_entity);
+    let target_item = owner_items.iter().find(|item| *item != hastener_entity);
 
     // If we found a target item, trigger the haste event
     if let Some(target_item) = target_item {
