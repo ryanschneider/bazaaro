@@ -5,6 +5,7 @@ use crate::items::healer::healer_used;
 use crate::items::poisoner::poisoner_used;
 use crate::items::shielder::shielder_used;
 use crate::items::slower::slower_used;
+use crate::items::targeting::targeting_startup;
 use bevy::prelude::*;
 use usable::tick_usable;
 use weapons::weapon_used;
@@ -17,6 +18,7 @@ mod healer;
 mod poisoner;
 mod shielder;
 mod slower;
+pub mod targeting;
 pub mod usable;
 pub mod weapons;
 
@@ -32,7 +34,8 @@ impl Plugin for ItemsPlugin {
             .add_observer(healer_used)
             .add_observer(slower_used)
             .add_observer(freezer_used)
-            .add_observer(hastener_used);
+            .add_observer(hastener_used)
+            .add_systems(Startup, targeting_startup);
     }
 }
 

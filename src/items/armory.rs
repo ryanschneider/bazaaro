@@ -6,6 +6,7 @@ use crate::effects::slow::Slow;
 use crate::items::freezer::Freezer;
 use crate::items::hastener::Hastener;
 use crate::items::slower::Slower;
+use crate::items::targeting::Targeting;
 use crate::items::usable::Usable;
 use crate::items::weapons::Weapon;
 use crate::items::Item;
@@ -135,6 +136,7 @@ pub struct FreezingCrystal {
     pub usable: Usable,
     pub freeze: Freeze,
     pub freezer: Freezer,
+    pub targeting: Targeting,
 }
 
 impl Default for FreezingCrystal {
@@ -145,6 +147,7 @@ impl Default for FreezingCrystal {
             usable: Usable::with_cooldown(Duration::from_secs(3)),
             freeze: Freeze::new(1.5), // Freezes for 1.5 seconds
             freezer: Freezer,
+            targeting: Targeting::RandomOpponentItem,
         }
     }
 }
