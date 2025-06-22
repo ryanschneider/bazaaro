@@ -3,8 +3,8 @@ use crate::effects::haste::Haste;
 use crate::effects::heal::Heal;
 use crate::effects::poison::Poison;
 use crate::effects::slow::Slow;
-use crate::items::freezer::{freezer};
-use crate::items::hastener::Hastener;
+use crate::items::freezer::freezer;
+use crate::items::hastener::hastener;
 use crate::items::slower::Slower;
 use crate::items::targeting::Targeting;
 use crate::items::usable::Usable;
@@ -159,7 +159,8 @@ pub struct HastePotion {
     pub item: Item,
     pub usable: Usable,
     pub haste: Haste,
-    pub hastener: Hastener,
+    pub targeting: Targeting,
+    pub hastener: UsableWithTargetedEffect,
 }
 
 impl Default for HastePotion {
@@ -169,7 +170,8 @@ impl Default for HastePotion {
             item: Item,
             usable: Usable::with_cooldown(Duration::from_secs(4)),
             haste: Haste::new(2.0), // Hastens for 2 seconds
-            hastener: Hastener,
+            targeting: Targeting::LeftmostDifferentItem,
+            hastener: hastener(),
         }
     }
 }

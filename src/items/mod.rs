@@ -1,5 +1,4 @@
 use crate::items::burner::burner_used;
-use crate::items::hastener::hastener_used;
 use crate::items::healer::healer_used;
 use crate::items::poisoner::poisoner_used;
 use crate::items::shielder::shielder_used;
@@ -34,7 +33,6 @@ impl Plugin for ItemsPlugin {
             .add_observer(shielder_used)
             .add_observer(healer_used)
             .add_observer(slower_used)
-            .add_observer(hastener_used)
             .add_observer(usable_with_targeted_effect_used)
             .add_systems(Startup, targeting_startup);
     }
