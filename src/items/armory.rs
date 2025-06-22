@@ -5,7 +5,7 @@ use crate::effects::poison::Poison;
 use crate::effects::slow::Slow;
 use crate::items::freezer::freezer;
 use crate::items::hastener::hastener;
-use crate::items::slower::Slower;
+use crate::items::slower::slower;
 use crate::items::targeting::Targeting;
 use crate::items::usable::Usable;
 use crate::items::weapons::Weapon;
@@ -115,7 +115,8 @@ pub struct GorgonsHead {
     pub item: Item,
     pub usable: Usable,
     pub slow: Slow,
-    pub slower: Slower,
+    pub targeting: Targeting,
+    pub slower: UsableWithTargetedEffect,
 }
 
 impl Default for GorgonsHead {
@@ -125,7 +126,8 @@ impl Default for GorgonsHead {
             item: Item,
             usable: Usable::with_cooldown(Duration::from_secs(2)),
             slow: Slow::new(1.0), // Slows for 1 second
-            slower: Slower,
+            targeting: Targeting::RightmostOpponentItem,
+            slower: slower(),
         }
     }
 }

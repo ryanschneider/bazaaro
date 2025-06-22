@@ -2,7 +2,6 @@ use crate::items::burner::burner_used;
 use crate::items::healer::healer_used;
 use crate::items::poisoner::poisoner_used;
 use crate::items::shielder::shielder_used;
-use crate::items::slower::slower_used;
 use crate::items::targeting::targeting_startup;
 use bevy::prelude::*;
 use usable::tick_usable;
@@ -32,7 +31,6 @@ impl Plugin for ItemsPlugin {
             .add_observer(poisoner_used)
             .add_observer(shielder_used)
             .add_observer(healer_used)
-            .add_observer(slower_used)
             .add_observer(usable_with_targeted_effect_used)
             .add_systems(Startup, targeting_startup);
     }
