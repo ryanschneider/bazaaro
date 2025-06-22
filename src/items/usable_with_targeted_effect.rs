@@ -3,20 +3,25 @@ use crate::items::targeting::{TargetSelected, Targeting, TargetingSystems};
 use crate::items::usable::UseEvent;
 use bevy::prelude::{Commands, Component, Entity, Query, Res, Trigger, With};
 
+#[derive(Debug, Clone, Copy)]
+pub struct EffectContext {
+    pub owner: Entity,   // Who's using the item
+    pub target: Entity,  // What they're targeting
+    pub source: Entity,  // The item itself
+}
+
 // Instead of a generic component, use a marker component with a boxed closure
 #[derive(Component)]
 #[require(Targeting)]
 pub struct UsableWithTargetedEffect {
-    pub effect_fn: Box<dyn Fn(Entity, Entity, Entity, &mut Commands) + Send + Sync>,
+    pub effect_fn: fn(EffectContext, &mut Commands),
 }
 
 impl UsableWithTargetedEffect {
-    pub fn new<F>(effect_fn: F) -> Self
-    where
-        F: Fn(Entity, Entity, Entity, &mut Commands) + Send + Sync + 'static,
+    pub fn new(effect_fn: fn(EffectContext, &mut Commands)) -> Self
     {
         Self {
-            effect_fn: Box::new(effect_fn),
+            effect_fn,
         }
     }
 }
@@ -53,7 +58,12 @@ fn usable_with_targeted_effect_used_target_selected(
     let effect = q_effect.get(trigger.source).unwrap();
 
     // Call the effect function stored in the component
-    (effect.effect_fn)(owner, trigger.target, trigger.source, &mut commands);
+    let ctx = EffectContext {
+        owner,
+        target: trigger.target,
+        source: trigger.source,
+    };
+    (effect.effect_fn)(ctx, &mut commands);
 
     commands.entity(trigger.observer()).despawn();
 }
