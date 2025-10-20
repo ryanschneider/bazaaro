@@ -17,7 +17,7 @@ tracing = { version = "0.1", features = [
 ] }
 
 [dependencies.bevy]
-version = "0.16.1"
+version = "0.17"
 default-features = false
 features = [
     "bevy_state",

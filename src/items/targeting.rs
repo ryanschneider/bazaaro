@@ -82,7 +82,7 @@ pub fn random_opponent_item(
     let available_items = opponent_items.iter();
 
     // Pick a random item from the available items
-    let mut rng = thread_rng();
+    let mut rng = rng();
     let Some(target) = available_items.choose(&mut rng) else {
         return;
     };
