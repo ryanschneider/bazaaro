@@ -17,9 +17,10 @@ impl Haste {
     }
 }
 
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct HasteEvent {
     pub source: Entity,
+    #[event_target]
     pub target: Entity,
     pub with: Entity,
 }
@@ -49,7 +50,7 @@ impl Hastened {
 
 #[allow(clippy::too_many_arguments)]
 pub fn on_hastened(
-    trigger: Trigger<HasteEvent>,
+    trigger: On<HasteEvent>,
     battle: Res<Battle>,
     q_source: Query<&Name>,
     q_target: Query<&Name, With<Item>>,

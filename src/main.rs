@@ -50,7 +50,7 @@ fn main() {
         .run();
 }
 
-fn exit_game(mut app_exit_events: EventWriter<AppExit>) {
+fn exit_game(mut app_exit_events: MessageWriter<AppExit>) {
     info!("Game over! Exiting...");
     app_exit_events.write(AppExit::Success);
 }

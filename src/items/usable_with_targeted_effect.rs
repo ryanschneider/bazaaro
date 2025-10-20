@@ -1,7 +1,7 @@
 use crate::characters::ItemOf;
 use crate::items::targeting::{TargetSelected, Targeting, TargetingSystems};
 use crate::items::usable::UseEvent;
-use bevy::prelude::{Commands, Component, Entity, Query, Res, Trigger, With};
+use bevy::prelude::{Commands, Component, Entity, On, Query, Res, With};
 
 #[derive(Debug, Clone, Copy)]
 pub struct EffectContext {
@@ -27,13 +27,13 @@ impl UsableWithTargetedEffect {
 }
 
 pub fn usable_with_targeted_effect_used(
-    trigger: Trigger<UseEvent>,
+    trigger: On<UseEvent>,
     q_item: Query<(Entity, &Targeting, &UsableWithTargetedEffect), With<ItemOf>>,
     mut commands: Commands,
     targeting_systems: Res<TargetingSystems>,
 ) {
     // The entity that triggered the event
-    let item_entity = trigger.target();
+    let item_entity = trigger.event().entity;
 
     // Only continue if the item has the UsableWithTargetedEffect component
     let Ok((item_entity, targeting, _effect)) = q_item.get(item_entity) else {
@@ -49,19 +49,20 @@ pub fn usable_with_targeted_effect_used(
 }
 
 fn usable_with_targeted_effect_used_target_selected(
-    trigger: Trigger<TargetSelected>,
+    trigger: On<TargetSelected>,
     q_owner: Query<&ItemOf>,
     q_effect: Query<&UsableWithTargetedEffect>,
     mut commands: Commands,
 ) {
-    let owner = q_owner.get(trigger.source).unwrap().owner();
-    let effect = q_effect.get(trigger.source).unwrap();
+    let event = trigger.event();
+    let owner = q_owner.get(event.source).unwrap().owner();
+    let effect = q_effect.get(event.source).unwrap();
 
     // Call the effect function stored in the component
     let ctx = EffectContext {
         owner,
-        target: trigger.target,
-        source: trigger.source,
+        target: event.target,
+        source: event.source,
     };
     (effect.effect_fn)(ctx, &mut commands);
 

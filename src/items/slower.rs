@@ -6,5 +6,5 @@ pub fn slower() -> UsableWithTargetedEffect {
 }
 
 fn slow_effect(EffectContext{ owner, target, source}: EffectContext, commands: &mut Commands) {
-    commands.trigger(SlowEvent::new(owner, target, source));
+    commands.entity(target).trigger(|target| SlowEvent::new(owner, target, source));
 }

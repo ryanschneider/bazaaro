@@ -19,11 +19,6 @@ impl Plugin for EffectsPlugin {
             FixedUpdate,
             (burn::tick_burning, poison::tick_poisoned).run_if(in_state(GameState::Fight)),
         )
-        .add_event::<poison::PoisonEvent>()
-        .add_event::<heal::HealEvent>()
-        .add_event::<slow::SlowEvent>()
-        .add_event::<freeze::FreezeEvent>()
-        .add_event::<haste::HasteEvent>()
         .add_observer(attack::on_attack)
         .add_observer(burn::on_burned)
         .add_observer(shield::on_shield)
