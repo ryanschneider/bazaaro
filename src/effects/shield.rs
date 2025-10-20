@@ -11,8 +11,9 @@ impl Shield {
     }
 }
 
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct ShieldEvent {
+    #[event_target]
     defender: Entity,
     with: Entity,
 }
@@ -39,7 +40,7 @@ impl Shielded {
 }
 
 pub fn on_shield(
-    trigger: Trigger<ShieldEvent>,
+    trigger: On<ShieldEvent>,
     battle: Res<Battle>,
     mut q_defender: Query<(&Name, Option<&mut Shielded>), With<Character>>,
     q_with: Query<(&Name, &Shield)>,

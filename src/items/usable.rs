@@ -7,7 +7,7 @@ use std::time::Duration;
 
 #[allow(clippy::type_complexity)]
 pub fn tick_usable(
-    _: Trigger<TickEvent>,
+    _: On<TickEvent>,
     battle: Res<Battle>,
     mut query: Query<(
         &mut Usable,
@@ -86,7 +86,7 @@ pub fn tick_usable(
         if timer.just_finished() {
             info!("{:?}: used {:?}!", battle.elapsed, name);
 
-            commands.trigger_targets(UseEvent {}, entity);
+            commands.entity(entity).trigger(|entity| UseEvent { entity });
             // reset the cooldown
             usable.cooldown = Timer::new(timer.duration(), TimerMode::Once);
         }
@@ -106,5 +106,7 @@ impl Usable {
     }
 }
 
-#[derive(Event)]
-pub struct UseEvent;
+#[derive(EntityEvent)]
+pub struct UseEvent {
+    pub entity: Entity,
+}

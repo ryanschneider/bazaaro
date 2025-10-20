@@ -55,9 +55,10 @@ impl TargetingSystems {
     }
 }
 
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct TargetSelected {
     pub source: Entity,
+    #[event_target]
     pub target: Entity,
 }
 pub fn random_opponent_item(
@@ -82,12 +83,12 @@ pub fn random_opponent_item(
     let available_items = opponent_items.iter();
 
     // Pick a random item from the available items
-    let mut rng = rng();
+    let mut rng = rand::rng();
     let Some(target) = available_items.choose(&mut rng) else {
         return;
     };
 
-    commands.trigger_targets(TargetSelected { source, target }, source);
+    commands.entity(target).trigger(|target| TargetSelected { source, target });
 }
 
 pub fn leftmost_different_item(
@@ -107,7 +108,7 @@ pub fn leftmost_different_item(
     let Some(target) = target else {
         return;
     };
-    commands.trigger_targets(TargetSelected { source, target }, source);
+    commands.entity(target).trigger(|target| TargetSelected { source, target });
 }
 
 pub fn rightmost_opponent_item(
@@ -133,7 +134,7 @@ pub fn rightmost_opponent_item(
         return;
     };
 
-    commands.trigger_targets(TargetSelected { source, target }, source);
+    commands.entity(target).trigger(|target| TargetSelected { source, target });
 }
 
 pub fn all_opponent_items(
@@ -156,6 +157,6 @@ pub fn all_opponent_items(
     };
     let available_items = opponent_items.iter();
     for target in available_items {
-        commands.trigger_targets(TargetSelected { source, target }, source);
+        commands.entity(target).trigger(|target| TargetSelected { source, target });
     }
 }

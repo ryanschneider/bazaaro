@@ -4,9 +4,10 @@ use crate::fighting::Battle;
 use crate::items::weapons::Weapon;
 use bevy::prelude::*;
 
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct AttackEvent {
     attacker: Entity,
+    #[event_target]
     defender: Entity,
     with: Entity,
 }
@@ -23,7 +24,7 @@ impl AttackEvent {
 
 #[allow(clippy::type_complexity)]
 pub fn on_attack(
-    trigger: Trigger<AttackEvent>,
+    trigger: On<AttackEvent>,
     battle: Res<Battle>,
     q_attacker: Query<&Name>,
     mut q_defender: Query<(&mut Health, Option<&mut Shielded>, Option<&Name>), With<Character>>,

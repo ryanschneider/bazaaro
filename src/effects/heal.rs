@@ -12,8 +12,9 @@ impl Heal {
     }
 }
 
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct HealEvent {
+    #[event_target]
     target: Entity,
     with: Entity,
 }
@@ -25,7 +26,7 @@ impl HealEvent {
 }
 
 pub fn on_heal(
-    trigger: Trigger<HealEvent>,
+    trigger: On<HealEvent>,
     battle: Res<Battle>,
     mut q_target: Query<(Entity, &Name, &mut Health, Option<&mut Poisoned>), With<Character>>,
     q_heal_source: Query<(&Heal, &Name)>,

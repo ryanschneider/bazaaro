@@ -6,5 +6,5 @@ pub fn freezer() -> UsableWithTargetedEffect {
 }
 
 fn freeze_effect(EffectContext{ owner, target, source}: EffectContext, commands: &mut Commands) {
-    commands.trigger(FreezeEvent::new(owner, target, source));
+    commands.entity(target).trigger(|target| FreezeEvent::new(owner, target, source));
 }

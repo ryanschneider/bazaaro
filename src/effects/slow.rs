@@ -17,9 +17,10 @@ impl Slow {
     }
 }
 
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct SlowEvent {
     pub source: Entity,
+    #[event_target]
     pub target: Entity,
     pub with: Entity,
 }
@@ -49,7 +50,7 @@ impl Slowed {
 
 #[allow(clippy::too_many_arguments)]
 pub fn on_slowed(
-    trigger: Trigger<SlowEvent>,
+    trigger: On<SlowEvent>,
     battle: Res<Battle>,
     q_source: Query<&Name>,
     q_target: Query<&Name, With<Item>>,

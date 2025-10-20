@@ -12,9 +12,10 @@ impl Poison {
     }
 }
 
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct PoisonEvent {
     attacker: Entity,
+    #[event_target]
     defender: Entity,
     with: Entity,
 }
@@ -76,7 +77,7 @@ pub fn tick_poisoned(
 }
 
 pub fn on_poisoned(
-    trigger: Trigger<PoisonEvent>,
+    trigger: On<PoisonEvent>,
     battle: Res<Battle>,
     q_attacker: Query<&Name>,
     mut q_defender: Query<(&Name, Option<&mut Poisoned>), With<Character>>,

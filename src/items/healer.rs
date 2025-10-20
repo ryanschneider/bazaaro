@@ -4,11 +4,11 @@ use crate::items::usable::UseEvent;
 use bevy::prelude::*;
 
 pub fn healer_used(
-    trigger: Trigger<UseEvent>,
+    trigger: On<UseEvent>,
     query: Query<&ItemOf, With<Heal>>,
     mut commands: Commands,
 ) {
-    let heal_with = trigger.target();
+    let heal_with = trigger.event().entity;
     let Ok(item_of) = query.get(heal_with) else {
         return;
     };
@@ -18,5 +18,5 @@ pub fn healer_used(
     let target = item_of.owner();
 
     // Trigger healing on the user themselves
-    commands.trigger_targets(HealEvent::new(target, heal_with), target);
+    commands.entity(target).trigger(|target| HealEvent::new(target, heal_with));
 }

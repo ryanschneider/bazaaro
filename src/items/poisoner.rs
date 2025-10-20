@@ -5,20 +5,19 @@ use crate::items::usable::UseEvent;
 use bevy::prelude::*;
 
 pub fn poisoner_used(
-    trigger: Trigger<UseEvent>,
+    trigger: On<UseEvent>,
     query: Query<&ItemOf, With<Poison>>,
     mut commands: Commands,
     battle: Res<Battle>,
 ) {
-    let poisoned_with = trigger.target();
+    let poisoned_with = trigger.event().entity;
     let Ok(item_of) = query.get(poisoned_with) else {
         return;
     };
 
     let attacker = item_of.owner();
     let defender = battle.opponent(attacker);
-    commands.trigger_targets(
-        PoisonEvent::new(attacker, defender, poisoned_with),
-        defender,
-    );
+    commands
+        .entity(defender)
+        .trigger(|defender| PoisonEvent::new(attacker, defender, poisoned_with));
 }

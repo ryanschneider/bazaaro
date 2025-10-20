@@ -13,9 +13,10 @@ impl Burn {
     }
 }
 
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct BurnEvent {
     attacker: Entity,
+    #[event_target]
     defender: Entity,
     with: Entity,
 }
@@ -106,7 +107,7 @@ pub fn tick_burning(
 }
 
 pub fn on_burned(
-    trigger: Trigger<BurnEvent>,
+    trigger: On<BurnEvent>,
     battle: Res<Battle>,
     q_attacker: Query<&Name>,
     mut q_defender: Query<(&Name, Option<&mut Burning>), With<Character>>,

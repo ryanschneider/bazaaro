@@ -6,5 +6,5 @@ pub fn hastener() -> UsableWithTargetedEffect {
 }
 
 fn haste_effect(EffectContext{ owner, target, source}: EffectContext, commands: &mut Commands) {
-    commands.trigger(HasteEvent::new(owner, target, source));
+    commands.entity(target).trigger(|target| HasteEvent::new(owner, target, source));
 }

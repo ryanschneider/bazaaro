@@ -10,20 +10,19 @@ pub struct Weapon {
 }
 
 pub fn weapon_used(
-    trigger: Trigger<UseEvent>,
+    trigger: On<UseEvent>,
     query: Query<&ItemOf, With<Weapon>>,
     mut commands: Commands,
     battle: Res<Battle>,
 ) {
-    let attacked_with = trigger.target();
+    let attacked_with = trigger.event().entity;
     let Ok(item_of) = query.get(attacked_with) else {
         return;
     };
 
     let attacker = item_of.owner();
     let defender = battle.opponent(attacker);
-    commands.trigger_targets(
-        AttackEvent::new(attacker, defender, attacked_with),
-        defender,
-    );
+    commands
+        .entity(defender)
+        .trigger(|defender| AttackEvent::new(attacker, defender, attacked_with));
 }

@@ -17,9 +17,10 @@ impl Freeze {
     }
 }
 
-#[derive(Event)]
+#[derive(EntityEvent)]
 pub struct FreezeEvent {
     pub source: Entity,
+    #[event_target]
     pub target: Entity,
     pub with: Entity,
 }
@@ -49,7 +50,7 @@ impl Frozen {
 
 #[allow(clippy::too_many_arguments)]
 pub fn on_frozen(
-    trigger: Trigger<FreezeEvent>,
+    trigger: On<FreezeEvent>,
     battle: Res<Battle>,
     q_source: Query<&Name>,
     q_target: Query<&Name, With<Item>>,
