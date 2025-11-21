@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 rand = "0.9"
+serde = { version = "1.0", features = ["derive"] }
 # Compile low-severity logs out of native builds for performance.
 log = { version = "0.4", features = [
     "max_level_debug",

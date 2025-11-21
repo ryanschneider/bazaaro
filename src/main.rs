@@ -8,6 +8,7 @@ mod effects;
 mod fighting;
 mod items;
 mod loading;
+mod rng;
 
 use bevy::app::ScheduleRunnerPlugin;
 use bevy::log::tracing_subscriber;
