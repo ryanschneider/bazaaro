@@ -1,7 +1,26 @@
 use crate::characters::*;
 use crate::GameState;
 use bevy::prelude::*;
+use serde::{Deserialize, Serialize};
 use std::time::Duration;
+
+/// Bazaaro-specific RNG key that uses stable identifiers for deterministic RNG
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub struct RngKey {
+    /// Game tick when the random decision is made
+    pub tick: u64,
+    /// Which character (Hero or Villain)
+    pub character: BazaaroCharacter,
+    /// Index of the item in the character's item list
+    pub index: usize,
+}
+
+/// Character identifier for stable RNG keys
+#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub enum BazaaroCharacter {
+    Hero,
+    Villain,
+}
 
 pub struct FightingPlugin;
 impl Plugin for FightingPlugin {
@@ -49,6 +68,7 @@ pub struct Battle {
     pub over: bool,
     pub hero: Entity,
     pub villain: Entity,
+    pub tick: u64,
 }
 
 impl Battle {
@@ -84,6 +104,7 @@ pub fn setup_fight(
         over: false,
         hero,
         villain,
+        tick: 0,
     });
     info!("ready to fight!");
     Ok(())
@@ -112,7 +133,8 @@ pub fn tick(
     mut commands: Commands,
 ) {
     if tickers.per_tick.tick(time.delta()).just_finished() {
-        debug!("{:?}: ticked!", battle.elapsed);
+        battle.tick += 1;
+        debug!("{:?}: ticked! (tick {})", battle.elapsed, battle.tick);
         commands.trigger(TickEvent);
     }
 
