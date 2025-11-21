@@ -1,4 +1,5 @@
 use super::provider::RngProvider;
+use bevy::prelude::Resource;
 use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use std::collections::HashMap;
@@ -6,6 +7,7 @@ use std::hash::Hash;
 use std::ops::Range;
 
 /// Server-side RNG that generates actual random values and logs them for transmission to client
+#[derive(Resource)]
 pub struct ServerRng<K: Hash + Eq + Clone> {
     generator: StdRng,
     log: HashMap<K, u32>,
