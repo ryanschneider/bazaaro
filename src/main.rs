@@ -14,8 +14,7 @@ use bevy::app::ScheduleRunnerPlugin;
 use bevy::log::tracing_subscriber;
 use bevy::log::tracing_subscriber::{fmt, prelude::*};
 use bevy::prelude::*;
-use fighting::RngKey;
-use rng::ServerRng;
+use fighting::BazaaroRng;
 use std::time::Duration;
 
 fn main() {
@@ -45,10 +44,10 @@ fn main() {
             loading::LoadingPlugin {},
             fighting::FightingPlugin {},
             effects::EffectsPlugin {},
-            items::ItemsPlugin::<ServerRng<RngKey>>::new(),
+            items::ItemsPlugin {},
         ))
         .insert_resource(Time::<Fixed>::from_duration(Duration::from_millis(100)))
-        .insert_resource(ServerRng::<RngKey>::new(42)) // Initialize RNG with seed
+        .insert_resource(BazaaroRng::server(42)) // Initialize RNG with seed
         .init_state::<GameState>()
         .add_systems(OnEnter(GameState::Results), exit_game)
         .run();

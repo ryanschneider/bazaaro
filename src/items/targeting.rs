@@ -1,5 +1,5 @@
 use crate::characters::{Character, Hero, ItemOf, Items, Villain};
-use crate::fighting::{BazaaroCharacter, Battle, RngKey};
+use crate::fighting::{BazaaroCharacter, BazaaroRng, Battle, RngKey};
 use crate::rng::RngProvider;
 use bevy::ecs::system::SystemId;
 use bevy::platform::collections::HashMap;
@@ -14,13 +14,11 @@ pub enum Targeting {
     AllOpponentItems,
 }
 
-pub(crate) fn targeting_startup<R: RngProvider<RngKey> + Resource + Send + Sync + 'static>(
-    mut commands: Commands,
-) {
+pub(crate) fn targeting_startup(mut commands: Commands) {
     let mut systems = TargetingSystems::default();
     systems.0.insert(
         Targeting::RandomOpponentItem,
-        commands.register_system(random_opponent_item::<R>),
+        commands.register_system(random_opponent_item),
     );
     systems.0.insert(
         Targeting::LeftmostDifferentItem,
@@ -78,10 +76,10 @@ fn get_character_type(
         None
     }
 }
-pub fn random_opponent_item<R: RngProvider<RngKey> + Resource>(
+pub fn random_opponent_item(
     In(source): In<Entity>,
     battle: Res<Battle>,
-    mut rng: ResMut<R>,
+    mut rng: ResMut<BazaaroRng>,
     q_owner: Query<&ItemOf>,
     q_items: Query<&Items, With<Character>>,
     q_hero: Query<(), With<Hero>>,
