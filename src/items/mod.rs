@@ -3,10 +3,10 @@ use crate::items::healer::healer_used;
 use crate::items::poisoner::poisoner_used;
 use crate::items::shielder::shielder_used;
 use crate::items::targeting::targeting_startup;
+use crate::items::usable_with_targeted_effect::usable_with_targeted_effect_used;
 use bevy::prelude::*;
 use usable::tick_usable;
 use weapons::weapon_used;
-use crate::items::usable_with_targeted_effect::usable_with_targeted_effect_used;
 
 pub mod armory;
 mod burner;

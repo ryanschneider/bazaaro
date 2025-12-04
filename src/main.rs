@@ -8,11 +8,13 @@ mod effects;
 mod fighting;
 mod items;
 mod loading;
+mod rng;
 
 use bevy::app::ScheduleRunnerPlugin;
 use bevy::log::tracing_subscriber;
 use bevy::log::tracing_subscriber::{fmt, prelude::*};
 use bevy::prelude::*;
+use fighting::BazaaroRng;
 use std::time::Duration;
 
 fn main() {
@@ -45,6 +47,7 @@ fn main() {
             items::ItemsPlugin {},
         ))
         .insert_resource(Time::<Fixed>::from_duration(Duration::from_millis(100)))
+        .insert_resource(BazaaroRng::server(42)) // Initialize RNG with seed
         .init_state::<GameState>()
         .add_systems(OnEnter(GameState::Results), exit_game)
         .run();

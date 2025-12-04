@@ -1,9 +1,9 @@
-use crate::characters::{Character, ItemOf, Items};
-use crate::fighting::Battle;
+use crate::characters::{Character, Hero, ItemOf, Items, Villain};
+use crate::fighting::{BazaaroCharacter, BazaaroRng, Battle, RngKey};
+use crate::rng::RngProvider;
 use bevy::ecs::system::SystemId;
 use bevy::platform::collections::HashMap;
 use bevy::prelude::*;
-use rand::prelude::*;
 
 #[derive(Component, Eq, Hash, PartialEq, Default)]
 pub enum Targeting {
@@ -61,32 +61,72 @@ pub struct TargetSelected {
     #[event_target]
     pub target: Entity,
 }
+
+/// Helper function to determine which character (Hero/Villain) owns an entity
+fn get_character_type(
+    entity: Entity,
+    q_hero: &Query<(), With<Hero>>,
+    q_villain: &Query<(), With<Villain>>,
+) -> Option<BazaaroCharacter> {
+    if q_hero.get(entity).is_ok() {
+        Some(BazaaroCharacter::Hero)
+    } else if q_villain.get(entity).is_ok() {
+        Some(BazaaroCharacter::Villain)
+    } else {
+        None
+    }
+}
 pub fn random_opponent_item(
     In(source): In<Entity>,
     battle: Res<Battle>,
+    mut rng: ResMut<BazaaroRng>,
     q_owner: Query<&ItemOf>,
-    q_opponent: Query<&Items, With<Character>>,
+    q_items: Query<&Items, With<Character>>,
+    q_hero: Query<(), With<Hero>>,
+    q_villain: Query<(), With<Villain>>,
     mut commands: Commands,
 ) {
     let Ok(item_of) = q_owner.get(source.entity()) else {
         return;
     };
     let owner = item_of.owner();
+
+    // Determine character type of owner
+    let Some(character) = get_character_type(owner, &q_hero, &q_villain) else {
+        return;
+    };
+
+    // Find the index of the source item in the owner's inventory
+    let Ok(owner_items) = q_items.get(owner) else {
+        return;
+    };
+    let Some(source_index) = owner_items.iter().position(|item| item == source) else {
+        return;
+    };
+
     // Find the opponent using the battle resource
     let opponent_entity = battle.opponent(owner);
 
     // Now we need to find a random item in the opponent's inventory
-    let Ok(opponent_items) = q_opponent.get(opponent_entity) else {
+    let Ok(opponent_items) = q_items.get(opponent_entity) else {
         return;
     };
 
-    let available_items = opponent_items.iter();
-
-    // Pick a random item from the available items
-    let mut rng = rand::rng();
-    let Some(target) = available_items.choose(&mut rng) else {
+    let available_items: Vec<Entity> = opponent_items.iter().collect();
+    if available_items.is_empty() {
         return;
+    }
+
+    // Build RNG key with stable identifiers
+    let key = RngKey {
+        tick: battle.tick,
+        character,
+        index: source_index,
     };
+
+    // Pick a random item using deterministic RNG
+    let target_idx = rng.result_range(key, 0..available_items.len() as u32);
+    let target = available_items[target_idx as usize];
 
     commands.entity(target).trigger(|target| TargetSelected { source, target });
 }

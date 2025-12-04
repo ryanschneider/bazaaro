@@ -1,7 +1,65 @@
 use crate::characters::*;
+use crate::rng::{ClientRng, RngProvider, ServerRng, TestRng};
 use crate::GameState;
 use bevy::prelude::*;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::ops::Range;
 use std::time::Duration;
+
+/// Bazaaro-specific RNG key that uses stable identifiers for deterministic RNG
+#[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub struct RngKey {
+    /// Game tick when the random decision is made
+    pub tick: u64,
+    /// Which character (Hero or Villain)
+    pub character: BazaaroCharacter,
+    /// Index of the item in the character's item list
+    pub index: usize,
+}
+
+/// Character identifier for stable RNG keys
+#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq, Serialize, Deserialize)]
+pub enum BazaaroCharacter {
+    Hero,
+    Villain,
+}
+
+/// Newtype wrapper for RNG providers specific to Bazaaro
+/// This eliminates the need for generic type parameters throughout the codebase
+#[derive(Resource)]
+pub struct BazaaroRng(Box<dyn RngProvider<RngKey> + Send + Sync>);
+
+impl BazaaroRng {
+    /// Create a server-side RNG with the given seed
+    pub fn server(seed: u64) -> Self {
+        Self(Box::new(ServerRng::<RngKey>::new(seed)))
+    }
+
+    /// Create a client-side RNG from the server's log
+    pub fn client(log: HashMap<RngKey, u32>) -> Self {
+        Self(Box::new(ClientRng::from_log(log)))
+    }
+
+    /// Create a test RNG with predetermined values
+    pub fn test(values: HashMap<RngKey, u32>) -> Self {
+        Self(Box::new(TestRng::with_values(values)))
+    }
+}
+
+impl RngProvider<RngKey> for BazaaroRng {
+    fn result(&mut self, key: RngKey) -> u32 {
+        self.0.result(key)
+    }
+
+    fn result_range(&mut self, key: RngKey, range: Range<u32>) -> u32 {
+        self.0.result_range(key, range)
+    }
+
+    fn result_bool(&mut self, key: RngKey, probability: f32) -> bool {
+        self.0.result_bool(key, probability)
+    }
+}
 
 pub struct FightingPlugin;
 impl Plugin for FightingPlugin {
@@ -49,6 +107,7 @@ pub struct Battle {
     pub over: bool,
     pub hero: Entity,
     pub villain: Entity,
+    pub tick: u64,
 }
 
 impl Battle {
@@ -84,6 +143,7 @@ pub fn setup_fight(
         over: false,
         hero,
         villain,
+        tick: 0,
     });
     info!("ready to fight!");
     Ok(())
@@ -112,7 +172,8 @@ pub fn tick(
     mut commands: Commands,
 ) {
     if tickers.per_tick.tick(time.delta()).just_finished() {
-        debug!("{:?}: ticked!", battle.elapsed);
+        battle.tick += 1;
+        debug!("{:?}: ticked! (tick {})", battle.elapsed, battle.tick);
         commands.trigger(TickEvent);
     }
 

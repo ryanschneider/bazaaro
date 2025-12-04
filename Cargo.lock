@@ -207,6 +207,7 @@ dependencies = [
  "bevy",
  "log",
  "rand",
+ "serde",
  "tracing",
 ]
 
